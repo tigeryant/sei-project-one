@@ -26,6 +26,9 @@ class Data {
     this.ghost4CycleTimer = null
     this.ghost4MoveTimer = null
 
+    // ghost speed in ms - constant
+    this.ghostMovementInterval = 200
+
 
     this.started = false
     this.livesLeft = 3
@@ -140,6 +143,16 @@ class Data {
     this.domPacman.style.width = `${this.cellWidth}px`
     this.grid.appendChild(this.domPacman)
 
+    // TODO create ghost 1's DOM element here
+    this.domGhost1 = document.createElement('div')
+    this.domGhost1.classList.add('ghost1')
+    this.domGhost1.style.left = `${this.cellWidth * this.ghost1StartX}px`
+    this.domGhost1.style.top = `${this.cellHeight * this.ghostStartY}px`
+    this.domGhost1.style.height = `${this.cellHeight}px`
+    this.domGhost1.style.width = `${this.cellWidth}px`
+    this.grid.appendChild(this.domGhost1)
+
+
     // populates walls (1d array of objects) - (make space for portals)
     // TODO remove this later
     // this.cells.forEach(row => {
@@ -152,6 +165,10 @@ class Data {
     //     })
     //   })
     // })
+
+    this.ghost1Track = [
+      [12, 11], [11, 11], [10, 11], [9, 11], [9, 12], [9, 13], [9, 14], [9, 15], [9, 16], [9, 17], [10, 17], [11, 17], [12, 17], [13, 17], [14, 17], [15, 17], [16, 17], [17, 17], [18, 17], [18, 16], [18, 15], [18, 14], [18, 13], [18, 12], [18, 11], [17, 11], [16, 11], [15, 11], [14, 11], [13, 11]
+    ]
 
   }
 
@@ -191,9 +208,6 @@ class Pacman {
           break
       }
 
-      // ! new code: using the domCell's class to decide if it's traversable (translate the below code using dom objects instead)
-
-      // ! old code
       // using the guideCell's isWall property to decide if it's traversable
       const guideCell = data.cells[newY][newX]
       if (!guideCell.isWall) {
@@ -238,6 +252,7 @@ class Ghost {
     this.cycleTimerId = null
     this.moveTimerId = null
     // this.mode = null
+    this.positionCounter = -1
   }
 
   // functions: startMoving(), startCycling()
@@ -247,10 +262,27 @@ class Ghost {
     // }, constant goes here 5000?)
   }
 
-  startMoving() {
-    // this.moveTimerId = setInterval(() => {
-    // Define a target cell based on what mode we're in. find a pathway to the target cell, then start traversing it.
-    // }, constant goes here 200?)
+  startMoving(track) {
+    // stretch goal: change to more complicated ghost behaviour - A star pathfinding algo
+
+    this.moveTimerId = setInterval(() => {
+      // TODO working from here
+      // Declare a 2d array called ghost 1 track. It’s elements are arrays. Within each of those array are two numbers, an x and a y position. Set the ghosts position. Each interval, increment an indexCounter and set the ghost’s x and y to the 0 and 1 of that array. Update the ghost DOM element as well.
+
+      this.positionCounter += 1
+
+      if (this.positionCounter > (track.length - 1)) {
+        this.positionCounter = 0
+      }
+
+      // update the ghost object's position
+      this.xPos = track[this.positionCounter][0]
+      this.yPos = track[this.positionCounter][1]
+
+      // update the ghost dom element's position
+      data.domGhost1.style.left = `${data.cellWidth * this.xPos}px`
+      data.domGhost1.style.top = `${data.cellHeight * this.yPos}px`
+    }, data.ghostMovementInterval)
   }
 }
 
@@ -270,36 +302,41 @@ class GhostManager {
   // definition of releaseGhosts() and the calls it makes to each ghost object
   releaseGhosts() {
     // start all ghost mode cycling and movement with a pause inbetween each one
-    ghost1.startCycling()
-    ghost1.startMoving()
 
-    setTimeout(() => {
-      ghost2.startCycling()
-      ghost2.startMoving()
-    }, 3000)
+    // put the ghost on the DOM first?
+    // mode cycling is now a stretch goal. Include this later
+    // ghost1.startCycling()
+    ghost1.startMoving(data.ghost1Track)
 
-    setTimeout(() => {
-      ghost3.startCycling()
-      ghost3.startMoving()
-    }, 3000)
+    // TODO temporarily removing
+    // setTimeout(() => {
+    //   ghost2.startCycling()
+    //   ghost2.startMoving()
+    // }, 3000)
 
-    setTimeout(() => {
-      ghost4.startCycling()
-      ghost4.startMoving()
-    }, 3000)
+    // setTimeout(() => {
+    //   ghost3.startCycling()
+    //   ghost3.startMoving()
+    // }, 3000)
+
+    // setTimeout(() => {
+    //   ghost4.startCycling()
+    //   ghost4.startMoving()
+    // }, 3000)
   }
 }
 
 // Instantiate all objects
 // Add each ghost to the data.ghosts array
 
-let data = new Data()
-let pacman = new Pacman(data.pacmanStartX, data.pacmanStartY)
-let ghostManager = new GhostManager()
-let ghost1 = new Ghost(data.ghost1StartX, data.ghostStartY)
-let ghost2 = new Ghost(data.ghost2StartX, data.ghostStartY)
-let ghost3 = new Ghost(data.ghost3StartX, data.ghostStartY)
-let ghost4 = new Ghost(data.ghost4StartX, data.ghostStartY)
+// change these all to constants later
+const data = new Data()
+const pacman = new Pacman(data.pacmanStartX, data.pacmanStartY)
+const ghostManager = new GhostManager()
+const ghost1 = new Ghost(data.ghost1StartX, data.ghostStartY)
+const ghost2 = new Ghost(data.ghost2StartX, data.ghostStartY)
+const ghost3 = new Ghost(data.ghost3StartX, data.ghostStartY)
+const ghost4 = new Ghost(data.ghost4StartX, data.ghostStartY)
 pushGhosts(ghost1, ghost2, ghost3, ghost4)
 
 
@@ -432,9 +469,8 @@ function beginPlay() {
   // make a call to a function from the pacman object that starts the movement interval, use timer ids to give it a timer
   pacman.startMoving()
 
-  // make a call to the ghostManager which starts to release each ghost (at intervals)
-  // TODO (removing temporarily)
-  // ghostManager.releaseGhosts()
+  // call ghostManager to release ghosts
+  ghostManager.releaseGhosts()
 }
 
 

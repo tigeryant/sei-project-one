@@ -33,6 +33,13 @@ body {
   /* z-index: 33; */
 }
 
+.ghost1 {
+  /* change the background image to a ghost later */
+  background-color: lime;
+  position: absolute;
+  /* background-image: url('https://i.imgur.com/jo1ejO4.jpg'); */
+}
+
 .small-food {
   background-color: yellow;
   
