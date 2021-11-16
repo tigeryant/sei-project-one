@@ -173,8 +173,6 @@ class Pacman {
       let newX = pacman.xPos
       let newY = pacman.yPos
 
-      console.log('pacman startMoving() activated')
-
       // using the guide value to determine newX, newY (guideCell positions)
       switch (pacman.guide) {
         case 'left':
@@ -328,8 +326,7 @@ function runGame() {
   console.log('game begins')
 
 
-  // TODO removing temporarily
-  // beginPlay()
+  beginPlay()
 
   // TODO removing temporarily
   // while (!data.fatalCollision) {
