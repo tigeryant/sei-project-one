@@ -32,25 +32,53 @@ class Data {
     this.fatalCollision = false
     this.ghosts = []
 
-    this.pacmansPos = [] // not needed
-    this.allGhostsPos = []
+    this.allGhostsPos = [] // still needed?
 
-    // declare cells, rows, walls(array of objects/2d arrays)
-    // this.cells = []
-    // this.walls = []
+    // declaring the grid
+    this.grid = document.querySelector('.grid-container')
+    this.grid.style.height = `${data.height * data.cellHeight}px`
+    this.grid.style.width = `${data.width * data.cellWidth}px`
 
-    // declare position arrays
+    // declaring and populating cells[] (an array of objects), adding domCells to the DOM
+    for (let y = 0; y < this.height; y++) {
+      const row = []
+      for (let x = 0; x < this.width; x++) {
+        const cell = new Cell(x, y)
+        row.push(cell)
+
+        // create new DOM element for each cell
+        const domCell = document.createElement('div')
+        domCell.classList.add('grid-item')
+        domCell.style.left = `${this.cellWidth * cell.xPos}px`
+        domCell.style.top = `${this.cellHeight * cell.yPos}px`
+        domCell.style.height = `${this.cellHeight}px`
+        domCell.style.width = `${this.cellWidth}px`
+
+        // set domCell x and y attributes
+        domCell.setAttribute('x', `${cell.xPos}`)
+        domCell.setAttribute('y', `${cell.yPos}`)
+
+        this.grid.appendChild(domCell)
+      }
+      this.cells.push(row)
+    }
+
+    // create a node list of all domCells and convert it to an array
+    this.domCellsNodeList = document.querySelectorAll('.grid-item')
+    this.domCellsArray = Array.from(this.domCellsNodeList)
+
+    // create pacman's DOM element, add it to the grid
+    this.domPacman = document.createElement('div')
+    this.domPacman.classList.add('pacman')
+    this.domPacman.style.left = `${data.cellWidth * data.pacmanStartX}px`
+    this.domPacman.style.top = `${data.cellHeight * data.pacmanStartY}px`
+    this.domPacman.style.height = `${data.cellHeight}px`
+    this.domPacman.style.width = `${data.cellWidth}px`
+    this.grid.appendChild(this.domPacman)
+
+    // Declare arrays that store positions of portals, smallFood, bigFood
     this.tunnelPositions = [ // not including portals or ghost house
       [1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 1], [8, 1], [9, 1], [10, 1], [11, 1], [12, 1], [15, 1], [16, 1], [17, 1], [18, 1], [19, 1], [20, 1], [21, 1], [22, 1], [23, 1], [24, 1], [25, 1], [26, 1], [1, 2], [6, 2], [12, 2], [15, 2], [21, 2], [26, 2], [1, 3], [6, 3], [12, 3], [15, 3], [21, 3], [26, 3], [1, 4], [6, 4], [12, 4], [15, 4], [21, 4], [26, 4], [1, 5], [2, 5], [3, 5], [4, 5], [5, 5], [6, 5], [7, 5], [8, 5], [9, 5], [10, 5], [11, 5], [12, 5], [13, 5], [14, 5], [15, 5], [16, 5], [17, 5], [18, 5], [19, 5], [20, 5], [21, 5], [22, 5], [23, 5], [24, 5], [25, 5], [26, 5], [1, 6], [6, 6], [9, 6], [18, 6], [21, 6], [26, 6], [1, 7], [6, 7], [9, 7], [18, 7], [21, 7], [26, 7], [1, 8], [2, 8], [3, 8], [4, 8], [5, 8], [6, 8], [9, 8], [10, 8], [11, 8], [12, 8], [15, 8], [16, 8], [17, 8], [18, 8], [21, 8], [22, 8], [23, 8], [24, 8], [25, 8], [26, 8], [6, 9], [12, 9], [15, 9], [21, 9], [6, 10], [12, 10], [15, 10], [21, 10], [6, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [21, 11], [6, 12], [9, 12], [18, 12], [21, 12], [6, 13], [9, 13], [18, 13], [21, 13], [1, 14], [2, 14], [3, 14], [4, 14], [5, 14], [6, 14], [7, 14], [8, 14], [9, 14], [18, 14], [19, 14], [20, 14], [21, 14], [22, 14], [23, 14], [24, 14], [25, 14], [26, 14], [6, 15], [9, 15], [18, 15], [21, 15], [6, 16], [9, 16], [18, 16], [21, 16], [6, 17], [9, 17], [10, 17], [11, 17], [12, 17], [13, 17], [14, 17], [15, 17], [16, 17], [17, 17], [18, 17], [21, 17], [6, 18], [9, 18], [18, 18], [21, 18], [6, 19], [9, 19], [18, 19], [21, 19], [1, 20], [2, 20], [3, 20], [4, 20], [5, 20], [6, 20], [7, 20], [8, 20], [9, 20], [10, 20], [11, 20], [12, 20], [15, 20], [16, 20], [17, 20], [18, 20], [19, 20], [20, 20], [21, 20], [22, 20], [23, 20], [24, 20], [25, 20], [26, 20], [1, 21], [6, 21], [12, 21], [15, 21], [21, 21], [26, 21], [1, 22], [6, 22], [12, 22], [15, 22], [21, 22], [26, 22], [1, 23], [2, 23], [3, 23], [6, 23], [7, 23], [8, 23], [9, 23], [10, 23], [11, 23], [12, 23], [13, 23], [14, 23], [15, 23], [16, 23], [17, 23], [18, 23], [19, 23], [20, 23], [21, 23], [24, 23], [25, 23], [26, 23], [3, 24], [6, 24], [9, 24], [18, 24], [21, 24], [24, 24], [3, 25], [6, 25], [9, 25], [18, 25], [21, 25], [24, 25], [1, 26], [2, 26], [3, 26], [4, 26], [5, 26], [6, 26], [9, 26], [10, 26], [11, 26], [12, 26], [15, 26], [16, 26], [17, 26], [18, 26], [21, 26], [22, 26], [23, 26], [24, 26], [25, 26], [26, 26], [1, 27], [12, 27], [15, 27], [26, 27], [1, 28], [12, 28], [15, 28], [26, 28], [1, 29], [2, 29], [3, 29], [4, 29], [5, 29], [6, 29], [7, 29], [8, 29], [9, 29], [10, 29], [11, 29], [12, 29], [13, 29], [14, 29], [15, 29], [16, 29], [17, 29], [18, 29], [19, 29], [20, 29], [21, 29], [22, 29], [23, 29], [24, 29], [25, 29], [26, 29]
-    ]
-
-
-    // TODO see phone notes
-
-    // Declare arrays that store lists of ordered pairs (x and y positions) representing the positions of portals, smallFood, bigFood
-    this.portals = [
-      [0, 14],
-      [27, 14]
     ]
 
     this.smallFood = [
@@ -65,9 +93,14 @@ class Data {
       [13, 12], [14, 12], [11, 13], [12, 13], [13, 13], [14, 13], [15, 13], [16, 13], [11, 14], [12, 14], [13, 14], [14, 14], [15, 14], [16, 14], [11, 15], [12, 15], [13, 15], [14, 15], [15, 15], [16, 15]
     ]
 
+    this.portals = [
+      [0, 14],
+      [27, 14]
+    ]
+
     this.notWalls = this.tunnelPositions.concat(this.ghostHouse).concat(this.portals)
 
-    // adds a class of 'big-food' or 'small-food' to relevant DOM cells in the comCellsArray
+    // adds a classes (food/wall) relevant DOM cells in the comCellsArray
     domCellsArray.forEach(domCell => {
       // add a wall class to each non-wall domcell
       this.notWalls.forEach(position => {
@@ -93,7 +126,7 @@ class Data {
 
     })
 
-    // populates walls (object) array (make space for portals)
+    // populates walls (1d array of objects) - (make space for portals)
     this.cells.forEach(row => {
       row.forEach(cell => {
         this.notWalls.forEach(position => {
@@ -130,9 +163,7 @@ class Data {
     // })
   }
 
-  initDOM() {
-    // Edit corresponding DOM elements and arrays/nodelists of DOM elements for cells, walls, smallFood, bigFood, pacman, ghosts. 
-    // deprecated
+  initDOM() { // not needed
   }
 }
 
@@ -264,10 +295,7 @@ class GhostManager {
   }
 }
 
-// Instantiate data object
-// Instantiate pacman object
-// Instantiate 4 ghost objects
-// Instantiate ghost manager object
+// Instantiate all objects
 // Add each ghost to the data.ghosts array
 
 let data = new Data()
@@ -278,68 +306,18 @@ let ghost2 = new Ghost(data.ghost2StartX, data.ghostStartY)
 let ghost3 = new Ghost(data.ghost3StartX, data.ghostStartY)
 let ghost4 = new Ghost(data.ghost4StartX, data.ghostStartY)
 pushGhosts(ghost1, ghost2, ghost3, ghost4)
+
 // call initDOM()?
 
-// initialise DOM elements here. DOM elements represent data stuctures stored in memory. Edit them in data.initDOM()
+// initialise DOM elements here???. DOM elements represent data stuctures stored in memory. Edit them in data.initDOM()
 // if they're variables/consts, they can be declared in-function and accessed with window rather than declaring them here
 
-// declaring the grid
-const grid = document.querySelector('.grid-container')
-grid.style.height = `${data.height * data.cellHeight}px`
-grid.style.width = `${data.width * data.cellWidth}px`
+// declaration of grid and cells[] was moved from here
 
-// declaring and populating cells[] (an array of objects), adding DOMcells to the DOM
-// cell positions can thus be accessed by cell.xPos and cell.yPos (no need for a positional array)
-for (let y = 0; y < data.height; y++) {
-  const row = []
-  for (let x = 0; x < data.width; x++) {
-    const cell = new Cell(x, y)
-    row.push(cell)
+// walls array population was moved from here
+// dom pacman declaration was here
 
-    // create a new element in the DOM for that cell
-    const domCell = document.createElement('div')
-    domCell.classList.add('grid-item')
-    domCell.style.left = `${data.cellWidth * cell.xPos}px`
-    domCell.style.top = `${data.cellHeight * cell.yPos}px`
-    domCell.style.height = `${data.cellHeight}px`
-    domCell.style.width = `${data.cellWidth}px`
-
-    // give the domCell an attribute of x and y here
-    domCell.setAttribute('x', `${cell.xPos}`)
-    domCell.setAttribute('y', `${cell.yPos}`)
-
-    grid.appendChild(domCell)
-  }
-  data.cells.push(row)
-}
-
-// walls array population was moved from here. If it breaks, put it back
-
-// create a node list of all domCells
-const domCellsNodeList = document.querySelectorAll('.grid-item')
-// convert it to an array
-const domCellsArray = Array.from(domCellsNodeList)
-// filter the array for wall cells and give each of them a class of wall
-const domWallsArray = domCellsArray.filter(domCell => {
-  if (domCell.getAttribute('x') === '0' || domCell.getAttribute('y') === '0' || domCell.getAttribute('x') === `${(data.width - 1)}` || domCell.getAttribute('y') === `${(data.height - 1)}`) {
-    domCell.classList.add('wall')
-
-    return domCell
-  }
-  // 
-})
-
-// create pacman's DOM element
-const domPacman = document.createElement('div')
-domPacman.classList.add('pacman')
-domPacman.style.left = `${data.cellWidth * data.pacmanStartX}px`
-domPacman.style.top = `${data.cellHeight * data.pacmanStartY}px`
-domPacman.style.height = `${data.cellHeight}px`
-domPacman.style.width = `${data.cellWidth}px`
-
-grid.appendChild(domPacman)
-
-
+// ! MAIN
 
 function main() {
   runGame()
