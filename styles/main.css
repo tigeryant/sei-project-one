@@ -35,8 +35,11 @@ body {
 
 .small-food {
   background-color: yellow;
+  
+  border-radius: 15px;
 }
 
 .big-food {
   background-color: red;
+  border-radius: 15px;
 }
