@@ -27,6 +27,7 @@ class Data {
     this.ghost4MoveTimer = null
 
 
+    this.started = false
     this.livesLeft = 3
     this.score = 0
     this.fatalCollision = false
@@ -73,11 +74,25 @@ class Data {
       const row = []
       for (let x = 0; x < this.width; x++) {
         const cell = new Cell(x, y)
-        row.push(cell)
+
+        // define the cell's position as a string
+        const cellPosition = JSON.stringify([cell.xPos, cell.yPos])
+        // define function that checks if two (string) positions match
+        const positionMatch = (element) => JSON.stringify(element) === cellPosition
 
         // TODO
         // if the cell has xPos and yPos in the position of a wall, set the cell.isWall property to true
+        // cell.isWall = true
+        // 
 
+        if (!this.notWalls.some(positionMatch)) {
+          cell.isWall = true // this could be refactored and put with the conditionals below
+        }
+
+        row.push(cell) // this could be moved to the bottom of the block
+
+
+        // For the DOM:
         // create new DOM element for each cell
         const domCell = document.createElement('div')
         domCell.style.left = `${this.cellWidth * cell.xPos}px`
@@ -86,9 +101,6 @@ class Data {
         domCell.style.width = `${this.cellWidth}px`
         domCell.classList.add('grid-item')
 
-        // define the cell's position as a string
-        const cellPosition = JSON.stringify([cell.xPos, cell.yPos])
-        const positionMatch = (element) => JSON.stringify(element) === cellPosition
 
         // if the cell is in a wall position, smallFood position or bigFood position, add that class
         if (!this.notWalls.some(positionMatch)) {
@@ -113,6 +125,8 @@ class Data {
       this.cells.push(row)
     }
 
+    console.log(this.cells)
+
     // create a node list of all domCells and convert it to an array
     this.domCellsNodeList = document.querySelectorAll('.grid-item')
     this.domCellsArray = Array.from(this.domCellsNodeList)
@@ -128,16 +142,16 @@ class Data {
 
     // populates walls (1d array of objects) - (make space for portals)
     // TODO remove this later
-    this.cells.forEach(row => {
-      row.forEach(cell => {
-        this.notWalls.forEach(position => {
-          if (cell.xPos !== position[0] && cell.yPos !== position[1]) {
-            cell.isWall = true
-            this.walls.push(cell)
-          }
-        })
-      })
-    })
+    // this.cells.forEach(row => {
+    //   row.forEach(cell => {
+    //     this.notWalls.forEach(position => {
+    //       if (cell.xPos !== position[0] && cell.yPos !== position[1]) {
+    //         cell.isWall = true
+    //         this.walls.push(cell)
+    //       }
+    //     })
+    //   })
+    // })
 
   }
 
@@ -159,6 +173,8 @@ class Pacman {
       let newX = pacman.xPos
       let newY = pacman.yPos
 
+      console.log('pacman startMoving() activated')
+
       // using the guide value to determine newX, newY (guideCell positions)
       switch (pacman.guide) {
         case 'left':
@@ -177,6 +193,9 @@ class Pacman {
           break
       }
 
+      // ! new code: using the domCell's class to decide if it's traversable (translate the below code using dom objects instead)
+
+      // ! old code
       // using the guideCell's isWall property to decide if it's traversable
       const guideCell = data.cells[newY][newX]
       if (!guideCell.isWall) {
@@ -290,17 +309,27 @@ pushGhosts(ghost1, ghost2, ghost3, ghost4)
 
 function main() {
   runGame()
-  handleFatalCollision()
+  // temporarily removing - HFC should only be triggered when a collision takes place
+  // handleFatalCollision()
 }
 
 
 function runGame() {
-  // halts execution until the user starts the game with a keypress
-  while (pacman.guide !== 'left' || pacman.guide !== 'right') {
-    return
-  }
+  // if (pacman.guide !== 'left' && pacman.guide !== 'right') {
 
-  beginPlay()
+  // halts execution until the user starts the game with a keypress
+  // function checkGuide() {
+  //   console.log(pacman.guide)
+  //   if (pacman.guide === null) {
+  //     setTimeout(checkGuide, 300)
+  //   }
+  // }
+  // checkGuide()
+  console.log('game begins')
+
+
+  // TODO removing temporarily
+  // beginPlay()
 
   // TODO removing temporarily
   // while (!data.fatalCollision) {
@@ -388,12 +417,18 @@ function handleKeyDown(e) {
     case 'ArrowDown':
       pacman.guide = 'down'
       break
+    case 'Space':
+      if (!data.started) {
+        data.started = true
+        main() // this begins the game
+      }
+      break
     default:
       break
   }
 }
 
-// keydown event listener
+// add keydown event listener
 document.addEventListener('keydown', handleKeyDown)
 
 function beginPlay() {
@@ -407,4 +442,4 @@ function beginPlay() {
 
 
 // begin program execution
-main()
+// main()
