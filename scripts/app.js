@@ -75,6 +75,9 @@ class Data {
         const cell = new Cell(x, y)
         row.push(cell)
 
+        // TODO
+        // if the cell has xPos and yPos in the position of a wall, set the cell.isWall property to true
+
         // create new DOM element for each cell
         const domCell = document.createElement('div')
         domCell.style.left = `${this.cellWidth * cell.xPos}px`
@@ -83,17 +86,15 @@ class Data {
         domCell.style.width = `${this.cellWidth}px`
         domCell.classList.add('grid-item')
 
+        // define the cell's position as a string
         const cellPosition = JSON.stringify([cell.xPos, cell.yPos])
         const positionMatch = (element) => JSON.stringify(element) === cellPosition
 
-        // if the cell is in a wall position, add the wall class
+        // if the cell is in a wall position, smallFood position or bigFood position, add that class
         if (!this.notWalls.some(positionMatch)) {
           domCell.classList.add('wall')
         }
 
-        // TODO work from here
-        // add conditions for smallFood and bigFood here
-        // if the cell is in a smallFood position, add the smallFood class
         if (this.smallFood.some(positionMatch)) {
           domCell.classList.add('small-food')
         }
@@ -125,31 +126,8 @@ class Data {
     this.domPacman.style.width = `${this.cellWidth}px`
     this.grid.appendChild(this.domPacman)
 
-    // removing temporarily
-    // this.domCellsArray.forEach(domCell => {
-    //   // add a wall class to each non-wall domcell
-    //   this.notWalls.forEach(position => {
-    //     if (domCell.getAttribute('x') !== position[0] && domCell.getAttribute('y') !== position[1]) {
-    //       domCell.classList.add('wall')
-    //     }
-    //   })
-
-    //   // adds the smallfood class to all smallfood domcells
-    //   this.smallFood.forEach(position => {
-    //     if (domCell.getAttribute('x') === position[0] && domCell.getAttribute('y') === position[1]) {
-    //       domCell.classList.add('small-food')
-    //     }
-    //   })
-
-    //   // add the bigfood class to all bigfood domcells
-    //   this.bigFood.forEach(position => {
-    //     if (domCell.getAttribute('x') === position[0] && domCell.getAttribute('y') === position[1]) {
-    //       domCell.classList.add('big-food')
-    //     }
-    //   })
-    // })
-
     // populates walls (1d array of objects) - (make space for portals)
+    // TODO remove this later
     this.cells.forEach(row => {
       row.forEach(cell => {
         this.notWalls.forEach(position => {
@@ -161,29 +139,6 @@ class Data {
       })
     })
 
-
-    // ! ignore:
-
-    // TODO define the wallsPosition array based on all cells - tunnelPositions - portals - ghostHouse. Use the testbed to test if the above values are correct
-
-    // wallPositions is a filter of cells such that if that element is not included in tunnelpositions, ghosthouse or portals, it is returned as part of wallPositions
-    // TODO define cellPositions first, use cell.xPos, cell.yPos
-    // first concatenate ghostHouse, portals, and tunnelpositions
-
-
-    // const wallPositions = []
-
-    // define cellPositions by taking the cells array and mapping it to an array of positions
-    // TODO
-
-    // cellPositions.forEach(cell => {
-
-    //   notWalls.forEach(element => {
-    //     if (cell[0] !== element[0] && cell[1] !== element[1]) {
-    //       wallPositions.push(cell)
-    //     }
-    //   })
-    // })
   }
 
   initDOM() { // not needed
@@ -330,15 +285,6 @@ let ghost3 = new Ghost(data.ghost3StartX, data.ghostStartY)
 let ghost4 = new Ghost(data.ghost4StartX, data.ghostStartY)
 pushGhosts(ghost1, ghost2, ghost3, ghost4)
 
-// call initDOM()?
-
-// initialise DOM elements here???. DOM elements represent data stuctures stored in memory. Edit them in data.initDOM()
-// if they're variables/consts, they can be declared in-function and accessed with window rather than declaring them here
-
-// declaration of grid and cells[] was moved from here
-
-// walls array population was moved from here
-// dom pacman declaration was here
 
 // ! MAIN
 
@@ -356,43 +302,44 @@ function runGame() {
 
   beginPlay()
 
-  while (!data.fatalCollision) {
-    // check left portal
-    if (data.portalPosition[0] === data.pacmansPos) {
-      pacman.xPos = data.portalPosition[1][0]
-      pacman.yPos = data.portalPosition[1][1]
-    }
+  // TODO removing temporarily
+  // while (!data.fatalCollision) {
+  //   // check left portal
+  //   if (data.portalPosition[0] === data.pacmansPos) {
+  //     pacman.xPos = data.portalPosition[1][0]
+  //     pacman.yPos = data.portalPosition[1][1]
+  //   }
 
-    // check right portal
-    if (data.portalPosition[1] === data.pacmansPos) {
-      pacman.xPos = data.portalPosition[0][0]
-      pacman.yPos = data.portalPosition[0][1]
-    }
+  //   // check right portal
+  //   if (data.portalPosition[1] === data.pacmansPos) {
+  //     pacman.xPos = data.portalPosition[0][0]
+  //     pacman.yPos = data.portalPosition[0][1]
+  //   }
 
-    // check if pacman's position matches a position in the smallFood position array. If it does, remove that pair from the smallFood array, change that DOM cell by removing its smallFood class and increment data.score by a const smallScore
+  //   // check if pacman's position matches a position in the smallFood position array. If it does, remove that pair from the smallFood array, change that DOM cell by removing its smallFood class and increment data.score by a const smallScore
 
-    // if pacman eats smallFood, remove that element from smallFood positional array, increase score
-    data.smallFood.forEach(position => {
-      if (position[0] === pacman.xPos && position[1] === pacman.yPos) {
-        const index = data.smallFood.indexOf(position)
-        data.smallFood.splice(index, 1)
+  //   // if pacman eats smallFood, remove that element from smallFood positional array, increase score
+  //   data.smallFood.forEach(position => {
+  //     if (position[0] === pacman.xPos && position[1] === pacman.yPos) {
+  //       const index = data.smallFood.indexOf(position)
+  //       data.smallFood.splice(index, 1)
 
-        data.score += data.smallScore
-      }
-    })
+  //       data.score += data.smallScore
+  //     }
+  //   })
 
-    // if pacman steps on smallfood, remove that class from the dom cell
-    data.domCellsArray.forEach(domCell => {
-      if (domCell.getAttribute('x') === pacman.xPos && domCell.getAttribute('y') === pacman.yPos) {
-        domCell.classList.remove('small-food')
-      }
-    })
+  //   // if pacman steps on smallfood, remove that class from the dom cell
+  //   data.domCellsArray.forEach(domCell => {
+  //     if (domCell.getAttribute('x') === pacman.xPos && domCell.getAttribute('y') === pacman.yPos) {
+  //       domCell.classList.remove('small-food')
+  //     }
+  //   })
 
-    // check if pacman's position matches a position in the bigFood position array. If it does, remove that element of the array, increment data.score by another predefined constant, call the ghosthandler which changes each ghostmode to frightened until either: a timeout expires (in which case the normal mode cycle interval is re-engaged) or there is a match between pacman and the ghosts position, in which case their 'back to base' mode is activated, where they wait for a timeout before returning to the normal mode/cycle interval.
-    // if pacman's position matches that of a ghost and their mode is anything except frightened or 'back to base', fatalCollision is set to true
-  }
+  //   // check if pacman's position matches a position in the bigFood position array. If it does, remove that element of the array, increment data.score by another predefined constant, call the ghosthandler which changes each ghostmode to frightened until either: a timeout expires (in which case the normal mode cycle interval is re-engaged) or there is a match between pacman and the ghosts position, in which case their 'back to base' mode is activated, where they wait for a timeout before returning to the normal mode/cycle interval.
+  //   // if pacman's position matches that of a ghost and their mode is anything except frightened or 'back to base', fatalCollision is set to true
+  // }
 
-  handleFatalCollision()
+  // handleFatalCollision()
 }
 
 function handleFatalCollision() {
@@ -454,11 +401,10 @@ function beginPlay() {
   pacman.startMoving()
 
   // make a call to the ghostManager which starts to release each ghost (at intervals)
-  ghostManager.releaseGhosts()
+  // TODO (removing temporarily)
+  // ghostManager.releaseGhosts()
 }
 
 
 // begin program execution
-
-// TODO uncomment this - commenting out for dry run
-//main()
+main()
