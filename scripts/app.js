@@ -34,10 +34,15 @@ class Data {
 
     this.allGhostsPos = [] // still needed?
 
+    // declaring cells - 2d array of 'cell' ojects in 'row' arrays
+    this.cells = []
+    // declaring walls - array of 'cell' objects - isWall property is true
+    this.walls = []
+
     // declaring the grid
     this.grid = document.querySelector('.grid-container')
-    this.grid.style.height = `${data.height * data.cellHeight}px`
-    this.grid.style.width = `${data.width * data.cellWidth}px`
+    this.grid.style.height = `${this.height * this.cellHeight}px`
+    this.grid.style.width = `${this.width * this.cellWidth}px`
 
     // declaring and populating cells[] (an array of objects), adding domCells to the DOM
     for (let y = 0; y < this.height; y++) {
@@ -70,10 +75,10 @@ class Data {
     // create pacman's DOM element, add it to the grid
     this.domPacman = document.createElement('div')
     this.domPacman.classList.add('pacman')
-    this.domPacman.style.left = `${data.cellWidth * data.pacmanStartX}px`
-    this.domPacman.style.top = `${data.cellHeight * data.pacmanStartY}px`
-    this.domPacman.style.height = `${data.cellHeight}px`
-    this.domPacman.style.width = `${data.cellWidth}px`
+    this.domPacman.style.left = `${this.cellWidth * this.pacmanStartX}px`
+    this.domPacman.style.top = `${this.cellHeight * this.pacmanStartY}px`
+    this.domPacman.style.height = `${this.cellHeight}px`
+    this.domPacman.style.width = `${this.cellWidth}px`
     this.grid.appendChild(this.domPacman)
 
     // Declare arrays that store positions of portals, smallFood, bigFood
@@ -101,7 +106,7 @@ class Data {
     this.notWalls = this.tunnelPositions.concat(this.ghostHouse).concat(this.portals)
 
     // adds a classes (food/wall) relevant DOM cells in the comCellsArray
-    domCellsArray.forEach(domCell => {
+    this.domCellsArray.forEach(domCell => {
       // add a wall class to each non-wall domcell
       this.notWalls.forEach(position => {
         if (domCell.getAttribute('x') !== position[0] && domCell.getAttribute('y') !== position[1]) {
@@ -230,8 +235,8 @@ class Pacman {
       }
 
       // move the pacman DOM element
-      domPacman.style.left = `${data.cellWidth * pacman.xPos}px`
-      domPacman.style.top = `${data.cellHeight * pacman.yPos}px`
+      data.domPacman.style.left = `${data.cellWidth * pacman.xPos}px`
+      data.domPacman.style.top = `${data.cellHeight * pacman.yPos}px`
     }, 125)
   }
 }
@@ -359,7 +364,7 @@ function runGame() {
     })
 
     // if pacman steps on smallfood, remove that class from the dom cell
-    domCellsArray.forEach(domCell => {
+    data.domCellsArray.forEach(domCell => {
       if (domCell.getAttribute('x') === pacman.xPos && domCell.getAttribute('y') === pacman.yPos) {
         domCell.classList.remove('small-food')
       }
@@ -435,5 +440,7 @@ function beginPlay() {
 }
 
 
+// begin program execution
 
-main()
+// TODO uncomment this - commenting out for dry run
+//main()
