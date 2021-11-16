@@ -1,0 +1,41 @@
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 98vh;
+  width: 98vw;
+  background-color: black;
+}
+
+.grid-container {
+  /* height: 310px;
+  width: 280px; */
+  /* background-color: black; */
+  position: relative;
+}
+
+  .grid-item {
+  position: absolute;
+  background-color: white;
+  font-size: 10px;
+  border: 1px solid black;
+}
+
+.wall {
+  background-color: lightgrey;
+}
+
+.pacman {
+  background-color: yellow;
+  border-radius: 15px;
+  position: absolute;
+  /* z-index: 33; */
+}
+
+.small-food {
+  background-color: yellow;
+}
+
+.big-food {
+  background-color: red;
+}
