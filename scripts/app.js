@@ -14,6 +14,7 @@ class Data {
 
     this.smallScore = 10
     this.bigScore = 50
+    this.captureScore = 200
 
     this.pacmanTimer = null
     this.monitorTimer = null
@@ -260,7 +261,8 @@ class Ghost {
     this.yPos = y
     this.cycleTimerId = null
     this.moveTimerId = null
-    // this.mode = null
+    this.frightenedTimerId = null
+    this.mode = 'chase'
     this.positionCounter = -1
   }
 
@@ -277,6 +279,9 @@ class Ghost {
     this.moveTimerId = setInterval(() => {
       // Declare a 2d array called ghost 1 track. It’s elements are arrays. Within each of those array are two numbers, an x and a y position. Set the ghosts position. Each interval, increment an indexCounter and set the ghost’s x and y to the 0 and 1 of that array. Update the ghost DOM element as well.
 
+      // TODO edit this interval so that movement depends on this.mode
+      // switch (this.mode)
+
       this.positionCounter += 1
 
       if (this.positionCounter > (track.length - 1)) {
@@ -291,6 +296,43 @@ class Ghost {
       data.domGhost1.style.left = `${data.cellWidth * this.xPos}px`
       data.domGhost1.style.top = `${data.cellHeight * this.yPos}px`
     }, data.ghostMovementInterval)
+  }
+
+  goToBase() {
+    // TODO work here!!
+    // this function is called when a collision happens when this.mode === 'frightened'
+    // clear this.frightenedTimerId. This stops the mode from becoming 'chase' again
+
+    clearTimeout(this.frightenedTimerId)
+    this.mode = 'back to base'
+    console.log(`mode: ${this.mode}`)
+
+    // change the DOM element to red to reflect it returning to base
+    data.domGhost1.style.backgroundColor = 'red' // change this according to which ghost is being changed
+    data.domGhost1.innerHTML = 'R'
+  }
+
+  beFrightened() {
+    // this function is called when the ghost needs to behave in a frightened way
+
+    // be frightened until either: a timeout expires (in which case the normal mode cycle interval is re-engaged) or there is a match between pacman and the ghosts position, in which case their 'back to base' mode is activated, where they wait for a timeout before returning to the normal mode/cycle interval.
+
+    // start a timeout. When it expires this.mode = 'chase'
+
+    // start the frightenedTimerId here.kill it if a collision occurs in frightened mode (if it returns to base)
+
+    function returnToChase() {
+      this.mode = 'chase'
+      data.domGhost1.style.backgroundColor = 'lime'
+      data.domGhost1.innerHTML = 'C'
+      console.log(`mode: ${this.mode}`)
+    }
+
+    this.mode = 'frightened'
+    console.log(`mode: ${this.mode}`)
+    data.domGhost1.style.backgroundColor = 'blue' // change this according to which ghost is being changed
+    data.domGhost1.innerHTML = 'F'
+    this.frightenedTimerId = setTimeout(returnToChase, 5000)
   }
 }
 
@@ -307,11 +349,9 @@ class GhostManager {
     // is a constructor necessary? just use return?
   }
 
-  // definition of releaseGhosts() and the calls it makes to each ghost object
   releaseGhosts() {
     // start all ghost mode cycling and movement with a pause inbetween each one
 
-    // put the ghost on the DOM first?
     // mode cycling is now a stretch goal. Include this later
     // ghost1.startCycling()
     ghost1.startMoving(data.ghost1Track)
@@ -331,6 +371,13 @@ class GhostManager {
     //   ghost4.startCycling()
     //   ghost4.startMoving()
     // }, 3000)
+  }
+
+  // frighten all ghosts
+  frightenGhosts() {
+    data.ghosts.forEach(ghost => { // refactor all functions like this into a single line
+      ghost.beFrightened()
+    })
   }
 }
 
@@ -376,61 +423,69 @@ function runGame() {
 
   data.monitorTimer = setInterval(() => {
 
-    // checks for a fatal collision
+    // checks for collision (of any kind)
+    // TODO include a conditional here that has a different response depending on the ghost's mode value
     data.ghosts.forEach(ghost => {
       if (ghost.xPos === pacman.xPos && ghost.yPos === pacman.yPos) {
-        console.log('fatal collision!')
-        // set data.fatalCollision to true, run handleFatalCollision (which kills various processes)
+        if (ghost.mode !== 'frightened' && ghost.mode !== 'back to base') { //TODO problem is here
+          console.log('fatal collision!')
+          // set data.fatalCollision to true, run handleFatalCollision (which kills various processes)
+        } else if (ghost.mode === 'frightened') { //TODO not enough time inbetween checks
+          data.score += data.captureScore
+          document.querySelector('.score').innerHTML = `Score: ${data.score}` // this line is repeated - refactor by moving it after each function
+          console.log('ghost eaten!')
+
+          ghost.goToBase()
+        }
       }
     })
 
-    // check if pacman's position matches a position in the smallFood position array. If it does, remove that pair from the smallFood array, change that DOM cell by removing its smallFood class and increment data.score by a const smallScore
+    // opportunity for refactor here:
 
-    // if pacman eats smallFood, remove that element from smallFood positional array, increase score
+    // if pacman eats smallFood, remove that element from smallFood positional array, update DOM, increase score
     data.smallFood.forEach(position => {
       if (position[0] === pacman.xPos && position[1] === pacman.yPos) {
         const index = data.smallFood.indexOf(position)
         data.smallFood.splice(index, 1)
 
-        // TODO working here
-        // access that domCell which is stored in domCellsArray - it's x and y values are the same as pacman.yPos and pacman.xPos
-        // remove its smallFood class
-        // const foodCell = document.getElementById(`${pacman.xPos}, ${pacman.yPos}`)
-        // foodCell.classList.remove('small-food')
-
         document.getElementById(`${pacman.xPos}, ${pacman.yPos}`).classList.remove('small-food')
 
         data.score += data.smallScore
-        // TODO update the score dom element here
         document.querySelector('.score').innerHTML = `Score: ${data.score}`
       }
     })
 
-  }, 50)
+    // if pacman eats bigFood, remove that element from positional array, update DOM, increase score, call ghostManager to activate frightened mode
+    data.bigFood.forEach(position => {
+      if (position[0] === pacman.xPos && position[1] === pacman.yPos) {
+        const index = data.bigFood.indexOf(position)
+        data.bigFood.splice(index, 1)
 
-  // TODO temporarily removing
-  //   // for the portal monitors we need to handle the pacman dom element as well
-  //   // check left portal
-  //   if (data.portalPosition[0] === data.pacmansPos) {
-  //     pacman.xPos = data.portalPosition[1][0]
-  //     pacman.yPos = data.portalPosition[1][1]
-  //   }
+        document.getElementById(`${pacman.xPos}, ${pacman.yPos}`).classList.remove('big-food')
 
-  //   // check right portal
-  //   if (data.portalPosition[1] === data.pacmansPos) {
-  //     pacman.xPos = data.portalPosition[0][0]
-  //     pacman.yPos = data.portalPosition[0][1]
-  //   }
+        data.score += data.bigScore
+        document.querySelector('.score').innerHTML = `Score: ${data.score}`
 
-  //   // if pacman steps on smallfood, remove that class from the dom cell
-  //   data.domCellsArray.forEach(domCell => {
-  //     if (domCell.getAttribute('x') === pacman.xPos && domCell.getAttribute('y') === pacman.yPos) {
-  //       domCell.classList.remove('small-food')
-  //     }
-  //   })
+        // TODO
+        ghostManager.frightenGhosts()
+      }
+    })
 
-  //   // check if pacman's position matches a position in the bigFood position array. If it does, remove that element of the array, increment data.score by another predefined constant, call the ghosthandler which changes each ghostmode to frightened until either: a timeout expires (in which case the normal mode cycle interval is re-engaged) or there is a match between pacman and the ghosts position, in which case their 'back to base' mode is activated, where they wait for a timeout before returning to the normal mode/cycle interval.
-  //   // if pacman's position matches that of a ghost and their mode is anything except frightened or 'back to base', fatalCollision is set to true
+  }, 75) //lengthen this interval to decrease the browser's workload (maybe run the game more smoothly)
+
+  // TODO temporarily removing portals
+  // // for the portal monitors we need to handle the pacman dom element as well
+  // // check left portal
+  // if (data.portalPosition[0] === data.pacmansPos) {
+  //   pacman.xPos = data.portalPosition[1][0]
+  //   pacman.yPos = data.portalPosition[1][1]
+  // }
+
+  // // check right portal
+  // if (data.portalPosition[1] === data.pacmansPos) {
+  //   pacman.xPos = data.portalPosition[0][0]
+  //   pacman.yPos = data.portalPosition[0][1]
+  // }
 }
 
 // handleFatalCollision()
