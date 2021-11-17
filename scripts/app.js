@@ -31,12 +31,19 @@ class Data {
     // ghost speed in ms - constant
     this.ghostMovementInterval = 200
 
+    //prevent bounce
+    // this.lastActivated = 0
+    // this.delay = 20
+    this.activated = false
+
 
     this.started = false
     this.livesLeft = 3
     this.score = 0
     this.fatalCollision = false
     this.ghosts = []
+
+    this.introAudio = document.querySelector('#intro-audio')
 
     this.allGhostsPos = [] // still needed?
 
@@ -182,6 +189,11 @@ class Data {
 
   }
 
+  startIntroAudio() {
+    this.introAudio.src = '' //TODO add in intro audio here
+    this.introAudio.play()
+  }
+
   initDOM() { // not needed
   }
 }
@@ -321,19 +333,37 @@ class Ghost {
 
     // start the frightenedTimerId here.kill it if a collision occurs in frightened mode (if it returns to base)
 
-    function returnToChase() {
-      this.mode = 'chase'
-      data.domGhost1.style.backgroundColor = 'lime'
-      data.domGhost1.innerHTML = 'C'
-      console.log(`mode: ${this.mode}`)
-    }
+    // TODO write code to prevent bounce here
+
+
+    if (data.activated) return
+
+    data.activated = true
 
     this.mode = 'frightened'
     console.log(`mode: ${this.mode}`)
     data.domGhost1.style.backgroundColor = 'blue' // change this according to which ghost is being changed
     data.domGhost1.innerHTML = 'F'
-    this.frightenedTimerId = setTimeout(returnToChase, 5000)
+
+    this.frightenedTimerId = setTimeout(() => {
+      this.mode = 'chase'
+      data.domGhost1.style.backgroundColor = 'lime'
+      data.domGhost1.innerHTML = 'C'
+      console.log(`mode: ${this.mode}`)
+      data.activated = false
+    }, 5000)
+    // this.frightenedTimerId = setTimeout(returnToChase, 5000)
+
+    // function returnToChase() {
+    //   this.mode = 'chase'
+    //   data.domGhost1.style.backgroundColor = 'lime'
+    //   data.domGhost1.innerHTML = 'C'
+    //   console.log(`mode: ${this.mode}`)
+    //   data.activated = false
+    // }
   }
+
+
 }
 
 class Cell {
@@ -375,6 +405,10 @@ class GhostManager {
 
   // frighten all ghosts
   frightenGhosts() {
+    // if (data.lastActivated >= (Date.now() - data.delay)) // these 3 lines attempt to prevent bounce (but don't work)
+    //   return
+    // data.lastActivated = Date.now()
+
     data.ghosts.forEach(ghost => { // refactor all functions like this into a single line
       ghost.beFrightened()
     })
@@ -431,6 +465,7 @@ function runGame() {
           console.log('fatal collision!')
           // set data.fatalCollision to true, run handleFatalCollision (which kills various processes)
         } else if (ghost.mode === 'frightened') { //TODO not enough time inbetween checks
+          console.log(`mode ${ghost.mode}`)
           data.score += data.captureScore
           document.querySelector('.score').innerHTML = `Score: ${data.score}` // this line is repeated - refactor by moving it after each function
           console.log('ghost eaten!')
@@ -466,7 +501,9 @@ function runGame() {
         data.score += data.bigScore
         document.querySelector('.score').innerHTML = `Score: ${data.score}`
 
-        // TODO
+        // TODO make sure this can only be called once during a certain time
+
+
         ghostManager.frightenGhosts()
       }
     })
@@ -552,6 +589,9 @@ function handleKeyDown(e) {
 document.addEventListener('keydown', handleKeyDown)
 
 function beginPlay() {
+  // start intro audio
+  data.startIntroAudio()
+
   // make a call to a function from the pacman object that starts the movement interval, use timer ids to give it a timer
   pacman.startMoving()
 
