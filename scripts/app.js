@@ -16,6 +16,7 @@ class Data {
     this.bigScore = 50
 
     this.pacmanTimer = null
+    this.monitorTimer = null
     // now deprecated:
     this.ghost1CycleTimer = null
     this.ghost1MoveTimer = null
@@ -266,7 +267,6 @@ class Ghost {
     // stretch goal: change to more complicated ghost behaviour - A star pathfinding algo
 
     this.moveTimerId = setInterval(() => {
-      // TODO working from here
       // Declare a 2d array called ghost 1 track. It’s elements are arrays. Within each of those array are two numbers, an x and a y position. Set the ghosts position. Each interval, increment an indexCounter and set the ghost’s x and y to the 0 and 1 of that array. Update the ghost DOM element as well.
 
       this.positionCounter += 1
@@ -328,8 +328,6 @@ class GhostManager {
 
 // Instantiate all objects
 // Add each ghost to the data.ghosts array
-
-// change these all to constants later
 const data = new Data()
 const pacman = new Pacman(data.pacmanStartX, data.pacmanStartY)
 const ghostManager = new GhostManager()
@@ -365,8 +363,25 @@ function runGame() {
 
   beginPlay()
 
-  // TODO removing temporarily
-  // while (!data.fatalCollision) {
+  // TODO
+  // instead of a while loop, start an interval that periodically checks for collisions, food eating, etc
+  // attach a timerId that can be cleared when handleFatalCollision is called
+
+  data.monitorTimer = setInterval(() => {
+
+    // checks for a fatal collision
+    data.ghosts.forEach(ghost => {
+      if (ghost.xPos === pacman.xPos && ghost.yPos === pacman.yPos) {
+        console.log('fatal collision!')
+        // set data.fatalCollision to true, run handleFatalCollision (which kills various processes)
+      }
+    })
+
+  }, 50)
+
+
+  // TODO temporarily removing
+  //   // for the portal monitors we need to handle the pacman dom element as well
   //   // check left portal
   //   if (data.portalPosition[0] === data.pacmansPos) {
   //     pacman.xPos = data.portalPosition[1][0]
@@ -400,10 +415,10 @@ function runGame() {
 
   //   // check if pacman's position matches a position in the bigFood position array. If it does, remove that element of the array, increment data.score by another predefined constant, call the ghosthandler which changes each ghostmode to frightened until either: a timeout expires (in which case the normal mode cycle interval is re-engaged) or there is a match between pacman and the ghosts position, in which case their 'back to base' mode is activated, where they wait for a timeout before returning to the normal mode/cycle interval.
   //   // if pacman's position matches that of a ghost and their mode is anything except frightened or 'back to base', fatalCollision is set to true
-  // }
-
-  // handleFatalCollision()
 }
+
+// handleFatalCollision()
+
 
 function handleFatalCollision() {
   data.livesLeft -= 1
