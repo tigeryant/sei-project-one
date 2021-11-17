@@ -1,10 +1,22 @@
 body {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 98vh;
   width: 98vw;
   background-color: black;
+  font-family: 'Press Start 2P', cursive;
+}
+
+header {
+  display: flex;
+  /* find how to define the header width */
+  background-color: blue;
+}
+
+.score {
+
 }
 
 .grid-container {

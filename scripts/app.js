@@ -39,6 +39,11 @@ class Data {
 
     this.allGhostsPos = [] // still needed?
 
+    // setting DOM header styles
+    this.domHeader = document.querySelector('header')
+    this.domHeader.style.height = `${this.cellHeight * 3}px`
+    this.domHeader.style.width = `${this.cellWidth * this.width}px`
+
     // declaring cells - 2d array of 'cell' ojects in 'row' arrays
     this.cells = []
     // declaring walls - array of 'cell' objects - isWall property is true
