@@ -124,6 +124,9 @@ class Data {
         domCell.setAttribute('x', `${cell.xPos}`)
         domCell.setAttribute('y', `${cell.yPos}`)
 
+        // set an id value here, to be accessed during the monitor loop
+        domCell.id = `${cell.xPos}, ${cell.yPos}`
+
         this.grid.appendChild(domCell)
       }
       this.cells.push(row)
@@ -144,7 +147,7 @@ class Data {
     this.domPacman.style.width = `${this.cellWidth}px`
     this.grid.appendChild(this.domPacman)
 
-    // TODO create ghost 1's DOM element here
+    // create ghost 1's DOM element, add it to grid
     this.domGhost1 = document.createElement('div')
     this.domGhost1.classList.add('ghost1')
     this.domGhost1.style.left = `${this.cellWidth * this.ghost1StartX}px`
@@ -348,6 +351,7 @@ function main() {
 
 
 function runGame() {
+  // ! ignore from here until beginPlay()
   // if (pacman.guide !== 'left' && pacman.guide !== 'right') {
 
   // halts execution until the user starts the game with a keypress
@@ -363,9 +367,7 @@ function runGame() {
 
   beginPlay()
 
-  // TODO
-  // instead of a while loop, start an interval that periodically checks for collisions, food eating, etc
-  // attach a timerId that can be cleared when handleFatalCollision is called
+  // this timer id is cleared when handleFatalCollision is called
 
   data.monitorTimer = setInterval(() => {
 
@@ -377,8 +379,26 @@ function runGame() {
       }
     })
 
-  }, 50)
+    // check if pacman's position matches a position in the smallFood position array. If it does, remove that pair from the smallFood array, change that DOM cell by removing its smallFood class and increment data.score by a const smallScore
 
+    // if pacman eats smallFood, remove that element from smallFood positional array, increase score
+    data.smallFood.forEach(position => {
+      if (position[0] === pacman.xPos && position[1] === pacman.yPos) {
+        const index = data.smallFood.indexOf(position)
+        data.smallFood.splice(index, 1)
+
+        // TODO working here
+        // access that domCell which is stored in domCellsArray - it's x and y values are the same as pacman.yPos and pacman.xPos
+        // remove its smallFood class
+        const foodCell = document.getElementById(`${pacman.xPos}, ${pacman.yPos}`)
+        console.log(foodCell.getAttribute('x'), foodCell.getAttribute('y'))
+
+        data.score += data.smallScore
+        console.log(data.score)
+      }
+    })
+
+  }, 50)
 
   // TODO temporarily removing
   //   // for the portal monitors we need to handle the pacman dom element as well
@@ -393,18 +413,6 @@ function runGame() {
   //     pacman.xPos = data.portalPosition[0][0]
   //     pacman.yPos = data.portalPosition[0][1]
   //   }
-
-  //   // check if pacman's position matches a position in the smallFood position array. If it does, remove that pair from the smallFood array, change that DOM cell by removing its smallFood class and increment data.score by a const smallScore
-
-  //   // if pacman eats smallFood, remove that element from smallFood positional array, increase score
-  //   data.smallFood.forEach(position => {
-  //     if (position[0] === pacman.xPos && position[1] === pacman.yPos) {
-  //       const index = data.smallFood.indexOf(position)
-  //       data.smallFood.splice(index, 1)
-
-  //       data.score += data.smallScore
-  //     }
-  //   })
 
   //   // if pacman steps on smallfood, remove that class from the dom cell
   //   data.domCellsArray.forEach(domCell => {
