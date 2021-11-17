@@ -395,11 +395,14 @@ function runGame() {
         // TODO working here
         // access that domCell which is stored in domCellsArray - it's x and y values are the same as pacman.yPos and pacman.xPos
         // remove its smallFood class
-        const foodCell = document.getElementById(`${pacman.xPos}, ${pacman.yPos}`)
-        foodCell.classList.remove('small-food')
+        // const foodCell = document.getElementById(`${pacman.xPos}, ${pacman.yPos}`)
+        // foodCell.classList.remove('small-food')
+
+        document.getElementById(`${pacman.xPos}, ${pacman.yPos}`).classList.remove('small-food')
 
         data.score += data.smallScore
         // TODO update the score dom element here
+        // const scoreboa
       }
     })
 
