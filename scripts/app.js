@@ -35,6 +35,7 @@ class Data {
     // this.lastActivated = 0
     // this.delay = 20
     this.activated = false
+    this.fatalActivated = false
 
 
     this.started = false
@@ -333,9 +334,6 @@ class Ghost {
 
     // start the frightenedTimerId here.kill it if a collision occurs in frightened mode (if it returns to base)
 
-    // TODO write code to prevent bounce here
-
-
     if (data.activated) return
 
     data.activated = true
@@ -352,15 +350,6 @@ class Ghost {
       console.log(`mode: ${this.mode}`)
       data.activated = false
     }, 5000)
-    // this.frightenedTimerId = setTimeout(returnToChase, 5000)
-
-    // function returnToChase() {
-    //   this.mode = 'chase'
-    //   data.domGhost1.style.backgroundColor = 'lime'
-    //   data.domGhost1.innerHTML = 'C'
-    //   console.log(`mode: ${this.mode}`)
-    //   data.activated = false
-    // }
   }
 
 
@@ -413,6 +402,19 @@ class GhostManager {
       ghost.beFrightened()
     })
   }
+
+  clearGhostTimers() {
+    data.ghosts.forEach(ghost => {
+      clearInterval(ghost.moveTimerId)
+      clearTimeout(ghost.frightenedTimerId)
+    })
+  }
+
+  resetPositionCounters() {
+    data.ghosts.forEach(ghost => {
+      ghost.positionCounter = -1
+    })
+  }
 }
 
 // Instantiate all objects
@@ -437,34 +439,19 @@ function main() {
 
 
 function runGame() {
-  // ! ignore from here until beginPlay()
-  // if (pacman.guide !== 'left' && pacman.guide !== 'right') {
-
-  // halts execution until the user starts the game with a keypress
-  // function checkGuide() {
-  //   console.log(pacman.guide)
-  //   if (pacman.guide === null) {
-  //     setTimeout(checkGuide, 300)
-  //   }
-  // }
-  // checkGuide()
-  console.log('game begins')
-
-
   beginPlay()
 
   // this timer id is cleared when handleFatalCollision is called
-
   data.monitorTimer = setInterval(() => {
 
     // checks for collision (of any kind)
-    // TODO include a conditional here that has a different response depending on the ghost's mode value
     data.ghosts.forEach(ghost => {
       if (ghost.xPos === pacman.xPos && ghost.yPos === pacman.yPos) {
-        if (ghost.mode !== 'frightened' && ghost.mode !== 'back to base') { //TODO problem is here
+        if (ghost.mode !== 'frightened' && ghost.mode !== 'back to base') {
           console.log('fatal collision!')
-          // set data.fatalCollision to true, run handleFatalCollision (which kills various processes)
-        } else if (ghost.mode === 'frightened') { //TODO not enough time inbetween checks
+          // run handleFatalCollision
+          handleFatalCollision()
+        } else if (ghost.mode === 'frightened') {
           console.log(`mode ${ghost.mode}`)
           data.score += data.captureScore
           document.querySelector('.score').innerHTML = `Score: ${data.score}` // this line is repeated - refactor by moving it after each function
@@ -501,9 +488,6 @@ function runGame() {
         data.score += data.bigScore
         document.querySelector('.score').innerHTML = `Score: ${data.score}`
 
-        // TODO make sure this can only be called once during a certain time
-
-
         ghostManager.frightenGhosts()
       }
     })
@@ -529,24 +513,26 @@ function runGame() {
 
 
 function handleFatalCollision() {
+  // TODO include bounce prevention in handleFatalCollision - see Ghost.beFrightened()
+  // maybe it's not needed? since this can only run at the end?
+  if (data.fatalActivated) return
+  data.fatalActivated = true
+
   data.livesLeft -= 1
-  // clear movement intervals for all entities.
-  // if livesLeft < 1, (disable keyboard input?), call a function which displays the game over screen
+  // clear all timers
+  clearInterval(data.monitorTimer)
+  clearInterval(data.pacmanTimer)
+  ghostManager.clearGhostTimers()
+
+  // if 0 lives left, game over
   if (data.livesLeft < 1) {
-    // call gameOver()
+    data.fatalActivated = false
+    gameOver()
   } else if (data.livesLeft > 0) { // if there are lives left, reset positions and restart game
-    pacman.xPos = data.pacmanStartX
-    pacman.yPos = data.pacmanStartY
-
-    ghost1.xPos = data.ghost1StartX
-    ghost1.yPos = data.ghostStartY
-    ghost2.xPos = data.ghost2StartX
-    ghost2.yPos = data.ghostStartY
-    ghost3.xPos = data.ghost3StartX
-    ghost3.yPos = data.ghostStartY
-    ghost4.xPos = data.ghost4StartX
-    ghost4.yPos = data.ghostStartY
-
+    data.fatalActivated = false
+    pacman.guide = null
+    ghostManager.resetPositionCounters()
+    resetPositions()
     runGame()
   }
 }
@@ -597,6 +583,25 @@ function beginPlay() {
 
   // call ghostManager to release ghosts
   ghostManager.releaseGhosts()
+}
+
+function gameOver() {
+  console.log('game over')
+  // TODO add game over screen
+}
+
+function resetPositions() {
+  pacman.xPos = data.pacmanStartX
+  pacman.yPos = data.pacmanStartY
+
+  ghost1.xPos = data.ghost1StartX
+  ghost1.yPos = data.ghostStartY
+  ghost2.xPos = data.ghost2StartX
+  ghost2.yPos = data.ghostStartY
+  ghost3.xPos = data.ghost3StartX
+  ghost3.yPos = data.ghostStartY
+  ghost4.xPos = data.ghost4StartX
+  ghost4.yPos = data.ghostStartY
 }
 
 
