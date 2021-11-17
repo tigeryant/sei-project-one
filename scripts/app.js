@@ -191,7 +191,12 @@ class Data {
   }
 
   startIntroAudio() {
-    this.introAudio.src = '' //TODO add in intro audio here
+    this.introAudio.src = 'https://vgmsite.com/soundtracks/pac-man-game-sound-effects/gmiffyvl/Intro.mp3'
+    this.introAudio.play()
+  }
+
+  playChompAudio() {
+    this.introAudio.src = 'https://vgmsite.com/soundtracks/pac-man-game-sound-effects/knwtmadt/Chomp.mp3'
     this.introAudio.play()
   }
 
@@ -474,6 +479,9 @@ function runGame() {
 
         data.score += data.smallScore
         document.querySelector('.score').innerHTML = `Score: ${data.score}`
+
+        // TODO stop this audio playing if it's already playing (prevent bounce)
+        // data.playChompAudio()
       }
     })
 
@@ -578,11 +586,14 @@ function beginPlay() {
   // start intro audio
   data.startIntroAudio()
 
-  // make a call to a function from the pacman object that starts the movement interval, use timer ids to give it a timer
-  pacman.startMoving()
+  setTimeout(() => {
+    // make a call to a function from the pacman object that starts the movement interval, use timer ids to give it a timer
+    pacman.startMoving()
 
-  // call ghostManager to release ghosts
-  ghostManager.releaseGhosts()
+    // call ghostManager to release ghosts
+    ghostManager.releaseGhosts()
+  }, 4000)
+
 }
 
 function gameOver() {
