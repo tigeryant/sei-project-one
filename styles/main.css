@@ -7,15 +7,16 @@ body {
   width: 98vw;
   background-color: black;
   font-family: 'Press Start 2P', cursive;
+  color: white;
 }
 
 header {
   display: flex;
-  background-color: blue;
 }
 
 .score {
-
+  font-size: 15px;
+  margin-left: 20px;
 }
 
 .grid-container {

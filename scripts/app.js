@@ -41,7 +41,7 @@ class Data {
 
     // setting DOM header styles
     this.domHeader = document.querySelector('header')
-    this.domHeader.style.height = `${this.cellHeight * 3}px`
+    this.domHeader.style.height = `${this.cellHeight * 2}px`
     this.domHeader.style.width = `${this.cellWidth * this.width}px`
 
     // declaring cells - 2d array of 'cell' ojects in 'row' arrays
@@ -402,7 +402,7 @@ function runGame() {
 
         data.score += data.smallScore
         // TODO update the score dom element here
-        // const scoreboa
+        document.querySelector('.score').innerHTML = `Score: ${data.score}`
       }
     })
 
