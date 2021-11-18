@@ -369,8 +369,22 @@ class Ghost {
           // remove open[0] using splice
           this.open.splice(0, 1)
 
-          if (current.xPos === end.xPos && current.yPos === end.xPos) {
-            constructPath()
+          if (current.xPos === end.xPos && current.yPos === end.xPos) { //TODO this executes when the path is found.
+            constructPath() //TODO see how constructPath is called here. What does it have access to?
+            // here is the path construction code:
+
+            // TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! here we should be in-scope!!!!!!!!!! thank god
+            /*
+            this.path = []
+            pathnode = end
+
+            while (pathnode.parent !== null) {
+              this.path.push(pathnode)
+              pathnode = pathnode.parent
+            }
+            */
+
+
             this.finished = true
             return // does this exit the rest of the while loop, as it should?
           }
@@ -386,7 +400,7 @@ class Ghost {
             return false
           }
 
-          this.neighbours.forEach(neighbour => { //TODO currently here - see line 216 in python
+          this.neighbours.forEach(neighbour => {
             isInClosed(neighbour)
 
             // isWall value should be copied from the original cell object stored in data.cells
@@ -423,7 +437,6 @@ class Ghost {
                 this.open = _.sortBy(open, 'f')
               }
             }
-
           })
 
           if ((current.xPos !== end.xPos || current.yPos !== end.yPos) && this.open.length === 0) { // careful with scope here
@@ -434,10 +447,25 @@ class Ghost {
       }
 
 
-
       // define constructPath()
       function constructPath() {
         // this function needs access to: path (array), end (object), the parent of each cell
+        // TODO thus it must be allowed within the scope for which neighbours were defined
+        // TODO work from here
+        // end is in the interval scope, which we are inside now. this.path is within the ghost object scope, which we are inside. 
+
+        // basic structure:
+
+        /*
+        this.path = []
+        pathnode = end
+
+        while (pathnode.parent !== null) {
+          this.path.push(pathnode)
+          pathnode = pathnode.parent
+        }
+        */
+
       }
 
 
@@ -446,7 +474,10 @@ class Ghost {
       // run constructPath()
       // constructPath()
 
-      // change this.xPos and this.yPos based on an element of path
+      // change this.xPos and this.yPos based on an element of path (I think it's the second to last one)
+      // this.xPos = path[path.length - 2].xPos
+      // this.yPos = path[path.length - 2].yPos
+
       // update ghost on DOM (determine which ghost this is, then update that element)
       // reset variables like open, closed, path, (finished???, neighbours???)
 
