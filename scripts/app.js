@@ -149,7 +149,10 @@ class Data {
       this.cells.push(row)
     }
 
-    console.log(this.cells)
+    // const testBackground = document.createElement('div')
+    // testBackground.classList.add('game-over-cover')
+    // const background = document.querySelector('.background')
+    // background.appendChild(testBackground)
 
     // create a node list of all domCells and convert it to an array
     this.domCellsNodeList = document.querySelectorAll('.grid-item')
@@ -629,6 +632,7 @@ function beginPlay() {
 function gameOver() {
   console.log('game over')
   // TODO add game over screen
+  // create a div that covers the whole screen
 }
 
 function resetPositions() {

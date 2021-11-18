@@ -66,3 +66,31 @@ header {
   background-color: red;
   border-radius: 15px;
 }
+
+/* .game-over-cover {
+  height: 98vh;
+  width: 98vw;
+  z-index: 20;
+  margin-top: -100px; */
+  /* background:black; */
+  /* background:rgba(0,0,0,0.8); */
+  /* backdrop-filter: blur(100px); */
+  /* backdrop-filter: grayscale(1);   */
+/* } */
+
+/* .background {
+  background:black;
+  background:rgba(0,0,0,0.8);
+  height: 98vh;
+  width: 98vw;
+  z-index: 20;
+  margin-top: -100px;
+}
+
+.foreground {
+  backdrop-filter: blur(100px);
+  height: 98vh;
+  width: 98vw;
+  z-index: 20;
+  margin-top: -100px;
+} */
