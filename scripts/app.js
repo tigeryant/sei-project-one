@@ -318,7 +318,6 @@ class Ghost {
 
     this.moveTimerId = setInterval(() => {
       // switch statement based on mode determines various positions
-
       // declare positions of the start and end cells
       let startX = null
       let startY = null
@@ -351,7 +350,7 @@ class Ghost {
       const end = new Cell(endX, endY)
 
       // define algorithm()
-      function algorithm() {
+      function algorithm() { //TODO make sure this is called 
 
         // setup definitions
         start.g = 0
@@ -361,7 +360,7 @@ class Ghost {
         while (!this.finished) {
           // TODO - make sure you install underscore.js as a dependency to use this sort http://underscorejs.org/#sortBy
           // sort the cells in open by 'f' in ascending order
-          this.open = _.sortBy(open, 'f')
+          this.open = _.sortBy(open, 'f') //TODO install library properly
           let current = open[0] // check if this needs to be in the constructor? should be ok here
 
           this.closed.push(current)
@@ -378,7 +377,7 @@ class Ghost {
             // path construction performed locally
 
             this.path = [] // not needed?
-            pathnode = end
+            let pathnode = end
 
             while (pathnode.parent !== null) {
               this.path.push(pathnode)
@@ -387,8 +386,8 @@ class Ghost {
 
             // change this.xPos, this.yPos
             // analyse this.path (which is now populated), and 
-            this.xPos = path[path.length - 1].xPos //TODO - there is a chance this might be - 1, not -2, prepare to change it if needed
-            this.yPos = path[path.length - 1].yPos
+            this.xPos = this.path[this.path.length - 1].xPos //TODO - there is a chance this might be - 1, not -2, prepare to change it if needed
+            this.yPos = this.path[this.path.length - 1].yPos
 
 
 
@@ -403,7 +402,7 @@ class Ghost {
 
           this.neighbours = getNeighbours(this.current) //TODO make sure getNeighbours() passes copies of objects, not their references
 
-          function isInClosed(neighbour) {
+          function isInClosed(neighbour) { // TODO come back to this
             this.closed.forEach(closedNode => {
               if (closedNode.xPos === neighbour.xPos && closedNode.yPos === closedNode.yPos) {
                 return true
@@ -481,7 +480,7 @@ class Ghost {
 
 
       // run algorithm()
-      // algorithm()
+      algorithm()
       // run constructPath()
       // constructPath()
 
