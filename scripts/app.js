@@ -377,6 +377,59 @@ class Ghost {
 
           this.neighbours = getNeighbours(this.current) //TODO make sure getNeighbours() passes copies of objects, not their references
 
+          function isInClosed(neighbour) {
+            this.closed.forEach(closedNode => {
+              if (closedNode.xPos === neighbour.xPos && closedNode.yPos === closedNode.yPos) {
+                return true
+              }
+            })
+            return false
+          }
+
+          this.neighbours.forEach(neighbour => { //TODO currently here - see line 216 in python
+            isInClosed(neighbour)
+
+            // isWall value should be copied from the original cell object stored in data.cells
+            if (neighbour.isWall || isInClosed(neighbour)) {
+              return // not the most idiomatic, but it will do
+            }
+
+            function isInOpen(neighbour) {
+              this.open.forEach(openNode => {
+                if (openNode.xPos === neighbour.xPos && openNode.yPos === neighbour.yPos) {
+                  return true
+                }
+              })
+              return false
+            }
+
+            isInOpen(neighbour)
+
+            if (!isInOpen(neighbour)) {
+              this.open.push(neighbour)
+              neighbour.parent = current
+            }
+
+            neighbour.g = current.g + 1
+            neighbour.h = distanceBetween(neighbour, end)
+            neighbour.f = neighbour.g + neighbour.h
+
+            if (isInOpen(neighbour)) {
+              if ((current.g + 1) < neighbour.g) {
+                neighbour.g = (current.g + 1)
+                neighbour.parent = current
+                neighbour.f = neighbour.g + neighbour.h
+
+                this.open = _.sortBy(open, 'f')
+              }
+            }
+
+          })
+
+          if ((current.xPos !== end.xPos || current.yPos !== end.yPos) && this.open.length === 0) { // careful with scope here
+            console.log('Error: pathfinding failed')
+            this.finished = true
+          }
         }
       }
 
@@ -752,6 +805,8 @@ function resetPositions() {
 // main()
 
 // A star helper functions
+
+// heuristic: Manhattan distance (NOT Euclidian)
 function distanceBetween(nodeA, nodeB) {
   const xDistance = Math.abs(nodeA.xPos, nodeB.xPos)
   const yDistance = Math.abs(nodeA.yPos - nodeB.yPos)
@@ -783,12 +838,11 @@ function getNeighbours(node) {
   const copyLeft = new Cell(j, i - 1)
   const copyRight = new Cell(j, i + 1)
 
-  // copy all properties from each cell object
+  // copy all properties from each cell object (with the exception of .parent, which is a complex type and is defined later anyway)
 
   // copy cell above
   copyAbove.xPos = originalAbove.xPos
   copyAbove.yPos = originalAbove.yPos
-  copyAbove.parent = originalAbove.parent
   copyAbove.g = originalAbove.g
   copyAbove.h = originalAbove.h
   copyAbove.f = originalAbove.f
@@ -797,7 +851,6 @@ function getNeighbours(node) {
   // copy cell below
   copyBelow.xPos = originalBelow.xPos
   copyBelow.yPos = originalBelow.yPos
-  copyBelow.parent = originalBelow.parent
   copyBelow.g = originalBelow.g
   copyBelow.h = originalBelow.h
   copyBelow.f = originalBelow.f
@@ -806,7 +859,6 @@ function getNeighbours(node) {
   // copy cell left
   copyLeft.xPos = originalLeft.xPos
   copyLeft.yPos = originalLeft.yPos
-  copyLeft.parent = originalLeft.parent
   copyLeft.g = originalLeft.g
   copyLeft.h = originalLeft.h
   copyLeft.f = originalLeft.f
@@ -815,7 +867,6 @@ function getNeighbours(node) {
   // copy cell right
   copyRight.xPos = originalRight.xPos
   copyRight.yPos = originalRight.yPos
-  copyRight.parent = originalRight.parent
   copyRight.g = originalRight.g
   copyRight.h = originalRight.h
   copyRight.f = originalRight.f
