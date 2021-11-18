@@ -1,3 +1,5 @@
+import _, { sortBy } from 'underscore'
+
 class Data {
   constructor() {
     this.height = 31
@@ -350,137 +352,137 @@ class Ghost {
       const end = new Cell(endX, endY)
 
       // define algorithm()
-      function algorithm() { //TODO make sure this is called 
+      // function algorithm() { //TODO make sure this is called 
 
-        // setup definitions
-        start.g = 0
-        start.f = 0
-        this.open.push(start)
+      // setup definitions
+      start.g = 0
+      start.f = 0
+      this.open.push(start) // TODO first bug is here
 
-        while (!this.finished) {
-          // TODO - make sure you install underscore.js as a dependency to use this sort http://underscorejs.org/#sortBy
-          // sort the cells in open by 'f' in ascending order
-          this.open = _.sortBy(open, 'f') //TODO install library properly
-          let current = open[0] // check if this needs to be in the constructor? should be ok here
+      while (!this.finished) {
+        // TODO - make sure you install underscore.js as a dependency to use this sort http://underscorejs.org/#sortBy
+        // sort the cells in open by 'f' in ascending order
+        this.open = _.sortBy(open, 'f') //TODO install library properly
+        let current = open[0] // check if this needs to be in the constructor? should be ok here
 
-          this.closed.push(current)
+        this.closed.push(current)
 
-          // remove open[0] using splice
-          this.open.splice(0, 1)
+        // remove open[0] using splice
+        this.open.splice(0, 1)
 
-          if (current.xPos === end.xPos && current.yPos === end.xPos) { //this executes when the path is found.
-            //constructPath() //TODO see how constructPath is called here. What does it have access to?
-            // here is the path construction code:
+        if (current.xPos === end.xPos && current.yPos === end.xPos) { //this executes when the path is found.
+          //constructPath() //TODO see how constructPath is called here. What does it have access to?
+          // here is the path construction code:
 
-            // this should be in the proper scope now. Access to neighbours etc
+          // this should be in the proper scope now. Access to neighbours etc
 
-            // path construction performed locally
+          // path construction performed locally
 
-            this.path = [] // not needed?
-            let pathnode = end
+          this.path = [] // not needed?
+          let pathnode = end
 
-            while (pathnode.parent !== null) {
-              this.path.push(pathnode)
-              pathnode = pathnode.parent
-            }
-
-            // change this.xPos, this.yPos
-            // analyse this.path (which is now populated), and 
-            this.xPos = this.path[this.path.length - 1].xPos //TODO - there is a chance this might be - 1, not -2, prepare to change it if needed
-            this.yPos = this.path[this.path.length - 1].yPos
-
-
-
-            // update DOM
-            data.domGhost1.style.left = `${data.cellWidth * this.yPos}px`
-            data.domGhost1.style.top = `${data.cellHeight * this.yPos}px`
-
-
-            this.finished = true
-            return // does this exit the rest of the while loop, as it should?
+          while (pathnode.parent !== null) {
+            this.path.push(pathnode)
+            pathnode = pathnode.parent
           }
 
-          this.neighbours = getNeighbours(this.current) //TODO make sure getNeighbours() passes copies of objects, not their references
+          // change this.xPos, this.yPos
+          // analyse this.path (which is now populated), and 
+          this.xPos = this.path[this.path.length - 1].xPos //TODO - there is a chance this might be - 1, not -2, prepare to change it if needed
+          this.yPos = this.path[this.path.length - 1].yPos
 
-          function isInClosed(neighbour) { // TODO come back to this
-            this.closed.forEach(closedNode => {
-              if (closedNode.xPos === neighbour.xPos && closedNode.yPos === closedNode.yPos) {
+
+
+          // update DOM
+          data.domGhost1.style.left = `${data.cellWidth * this.yPos}px`
+          data.domGhost1.style.top = `${data.cellHeight * this.yPos}px`
+
+
+          this.finished = true
+          return // does this exit the rest of the while loop, as it should?
+        }
+
+        this.neighbours = getNeighbours(this.current) //TODO make sure getNeighbours() passes copies of objects, not their references
+
+        function isInClosed(neighbour) { // TODO come back to this
+          this.closed.forEach(closedNode => {
+            if (closedNode.xPos === neighbour.xPos && closedNode.yPos === closedNode.yPos) {
+              return true
+            }
+          })
+          return false
+        }
+
+        this.neighbours.forEach(neighbour => {
+          isInClosed(neighbour)
+
+          // isWall value should be copied from the original cell object stored in data.cells
+          if (neighbour.isWall || isInClosed(neighbour)) {
+            return // not the most idiomatic, but it will do
+          }
+
+          function isInOpen(neighbour) {
+            this.open.forEach(openNode => {
+              if (openNode.xPos === neighbour.xPos && openNode.yPos === neighbour.yPos) {
                 return true
               }
             })
             return false
           }
 
-          this.neighbours.forEach(neighbour => {
-            isInClosed(neighbour)
+          isInOpen(neighbour)
 
-            // isWall value should be copied from the original cell object stored in data.cells
-            if (neighbour.isWall || isInClosed(neighbour)) {
-              return // not the most idiomatic, but it will do
-            }
-
-            function isInOpen(neighbour) {
-              this.open.forEach(openNode => {
-                if (openNode.xPos === neighbour.xPos && openNode.yPos === neighbour.yPos) {
-                  return true
-                }
-              })
-              return false
-            }
-
-            isInOpen(neighbour)
-
-            if (!isInOpen(neighbour)) {
-              this.open.push(neighbour)
-              neighbour.parent = current
-            }
-
-            neighbour.g = current.g + 1
-            neighbour.h = distanceBetween(neighbour, end)
-            neighbour.f = neighbour.g + neighbour.h
-
-            if (isInOpen(neighbour)) {
-              if ((current.g + 1) < neighbour.g) {
-                neighbour.g = (current.g + 1)
-                neighbour.parent = current
-                neighbour.f = neighbour.g + neighbour.h
-
-                this.open = _.sortBy(open, 'f')
-              }
-            }
-          })
-
-          if ((current.xPos !== end.xPos || current.yPos !== end.yPos) && this.open.length === 0) { // careful with scope here
-            console.log('Error: pathfinding failed')
-            this.finished = true
+          if (!isInOpen(neighbour)) {
+            this.open.push(neighbour)
+            neighbour.parent = current
           }
+
+          neighbour.g = current.g + 1
+          neighbour.h = distanceBetween(neighbour, end)
+          neighbour.f = neighbour.g + neighbour.h
+
+          if (isInOpen(neighbour)) {
+            if ((current.g + 1) < neighbour.g) {
+              neighbour.g = (current.g + 1)
+              neighbour.parent = current
+              neighbour.f = neighbour.g + neighbour.h
+
+              this.open = _.sortBy(open, 'f')
+            }
+          }
+        })
+
+        if ((current.xPos !== end.xPos || current.yPos !== end.yPos) && this.open.length === 0) { // careful with scope here
+          console.log('Error: pathfinding failed')
+          this.finished = true
         }
       }
+      // } //TODO removing this algorithm closing brace
 
 
       // define constructPath()
-      function constructPath() {
-        // this function needs access to: path (array), end (object), the parent of each cell
-        // thus it must be allowed within the scope for which neighbours were defined
-        // end is in the interval scope, which we are inside now. this.path is within the ghost object scope, which we are inside. 
+      // function constructPath() {
+      // this function needs access to: path (array), end (object), the parent of each cell
+      // thus it must be allowed within the scope for which neighbours were defined
+      // end is in the interval scope, which we are inside now. this.path is within the ghost object scope, which we are inside. 
 
-        // basic structure:
+      // basic structure:
 
-        /*
-        this.path = []
-        pathnode = end
+      /*
+      this.path = []
+      pathnode = end
 
-        while (pathnode.parent !== null) {
-          this.path.push(pathnode)
-          pathnode = pathnode.parent
-        }
-        */
-
+      while (pathnode.parent !== null) {
+        this.path.push(pathnode)
+        pathnode = pathnode.parent
       }
+      */
+
+      // }
 
 
       // run algorithm()
-      algorithm()
+      // algorithm()//TODO removing this call
       // run constructPath()
       // constructPath()
 
@@ -812,7 +814,7 @@ function beginPlay() {
 
       // call ghostManager to release ghosts
       ghostManager.releaseGhosts()
-    }, 4300)
+    }, 1) // TODO shortening this for testing - original value is 4300
   } else {
     pacman.startMoving()
     ghostManager.releaseGhosts()
