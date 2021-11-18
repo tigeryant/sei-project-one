@@ -305,7 +305,7 @@ class Ghost {
     this.moveTimerId = null
     this.frightenedTimerId = null
     this.mode = 'chase'
-    this.positionCounter = -1
+    this.positionCounter = -1 //TODO remove this later
 
     // A star - pathfinding variables
     this.open = []
@@ -315,7 +315,7 @@ class Ghost {
     this.neighbours = []
   }
 
-  startMoving(track) { // track is now unecessary
+  startMoving() { // track is now unecessary
 
     this.moveTimerId = setInterval(() => {
       // switch statement based on mode determines various positions
@@ -370,19 +370,32 @@ class Ghost {
           this.open.splice(0, 1)
 
           if (current.xPos === end.xPos && current.yPos === end.xPos) { //TODO this executes when the path is found.
-            constructPath() //TODO see how constructPath is called here. What does it have access to?
+            //constructPath() //TODO see how constructPath is called here. What does it have access to?
             // here is the path construction code:
 
-            // TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! here we should be in-scope!!!!!!!!!! thank god
-            /*
-            this.path = []
+            // this should be in the proper scope now. Access to neighbours etc// TODO working here
+
+            // path construction performed locally
+
+            this.path = [] // not needed?
             pathnode = end
 
             while (pathnode.parent !== null) {
               this.path.push(pathnode)
               pathnode = pathnode.parent
             }
-            */
+
+            // change this.xPos, this.yPos //TODO - see below
+            // analyse this.path (which is now populated), and 
+            this.xPos = path[path.length - 1].xPos //TODO - there is a chance this might be - 1, not -2, prepare to change it if needed
+            this.yPos = path[path.length - 1].yPos // TODO see draw path() to get a better insight into this function
+
+
+
+            // update DOM
+            // TODO working here
+            data.domGhost1.style.left = `${data.cellWidth * this.yPos}px`
+            data.domGhost1.style.top = `${data.cellHeight * this.yPos}px`
 
 
             this.finished = true
@@ -479,8 +492,14 @@ class Ghost {
       // this.yPos = path[path.length - 2].yPos
 
       // update ghost on DOM (determine which ghost this is, then update that element)
-      // reset variables like open, closed, path, (finished???, neighbours???)
 
+      // TODO reset variable outside, here
+      // reset variables like open, closed, path, (finished???, neighbours???)
+      this.open = []
+      this.closed = []
+      this.finished = false
+      this.path = []
+      this.neighbours = []
 
 
 
@@ -583,7 +602,7 @@ class GhostManager {
 
     // mode cycling is now a stretch goal. Include this later
     // ghost1.startCycling()
-    ghost1.startMoving(data.ghost1Track) // TODO remove this argument later
+    ghost1.startMoving()
 
     // TODO temporarily removing
     // setTimeout(() => {
