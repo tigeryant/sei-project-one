@@ -631,8 +631,12 @@ function beginPlay() {
 
 function gameOver() {
   console.log('game over')
-  // TODO add game over screen
-  // create a div that covers the whole screen
+  // TODO add a more advanced game over screen
+  // create a div that covers the whole screen, blurs background, resets values etc
+
+  // Poor man's reset
+  alert(`Game over! Your score is ${data.score}.\nPress ok to play again`)
+  location.reload()
 }
 
 function resetPositions() {
