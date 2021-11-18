@@ -319,12 +319,82 @@ class Ghost {
 
     this.moveTimerId = setInterval(() => {
       // switch statement based on mode determines various positions
+      //TODO working from here
 
-      // declare new cells - start and end
+      // declare positions of the start and end cells
+      let startX = null
+      let startY = null
+      let endX = null
+      let endY = null
+
+      switch (this.mode) {
+        case 'chase':
+          let endX = pacman.xPos
+          let endY = pacman.yPos
+          break
+        case 'back to base':
+          let endX = data.ghost2StartX
+          let endY = data.ghostStartY
+          break
+        case 'frightened':
+          // define logic for 'frightened' later (this clause defines endX and endY)
+          break
+        default:
+          break
+      }
+
+      startX = this.xPos
+      startY = this.yPos
+
+      // instantiate start and end cells
+      const start = new Cell(startX, startY)
+      const end = new Cell(endX, endY)
+
+      // define algorithm()
+      function algorithm() {
+
+        // setup definitions
+        start.g = 0
+        start.f = 0
+        this.open.push(start)
+
+        while (!this.finished) {
+          // TODO - make sure you install underscore.js as a dependency to use this sort http://underscorejs.org/#sortBy
+          // sort the cells in open by 'f' in ascending order
+          this.open = _.sortBy(open, 'f')
+          let current = open[0] // check if this needs to be in the constructor? should be ok here
+
+          this.closed.push(current)
+
+          // remove open[0] using splice
+          this.open.splice(0, 1)
+
+          if (current.xPos === end.xPos && current.yPos === end.xPos) {
+            constructPath()
+            this.finished = true
+            return // does this exit the rest of the while loop, as it should?
+          }
+
+          this.neighbours = getNeighbours(this.current) //TODO make sure getNeighbours() passes copies of objects, not their references
+
+        }
+      }
+
+
+
+      // define constructPath()
+      function constructPath() {
+        // this function needs access to: path (array), end (object), the parent of each cell
+      }
+
+
       // run algorithm()
+      // algorithm()
       // run constructPath()
+      // constructPath()
+
       // change this.xPos and this.yPos based on an element of path
-      // update ghost on DOM
+      // update ghost on DOM (determine which ghost this is, then update that element)
       // reset variables like open, closed, path, (finished???, neighbours???)
 
 
@@ -429,7 +499,7 @@ class GhostManager {
 
     // mode cycling is now a stretch goal. Include this later
     // ghost1.startCycling()
-    ghost1.startMoving(data.ghost1Track)
+    ghost1.startMoving(data.ghost1Track) // TODO remove this argument later
 
     // TODO temporarily removing
     // setTimeout(() => {
@@ -694,10 +764,71 @@ function getNeighbours(node) {
   const i = node.xPos
   const j = node.yPos
 
-  neighbours.push(data.cells[j - 1][i]) // above
-  neighbours.push(data.cells[j + 1][i]) // below
-  neighbours.push(data.cells[j][i - 1]) // left
-  neighbours.push(data.cells[j][i + 1]) // right
+  //TODO reconstruct this in the following way:
+  // define originalAbove = data.cells[j - 1][i]
+  // define originalBelow = data.cells[j + 1][i]
+  // define originalLeft = data.cells[j][i - 1]
+  // define originalRight = data.cells[j][i + 1]
+  // instantiate 4 new cell objects.
+  // edit each of their properties to match their corresponding original.property
+  // push each of these new objects to neighbours
+
+  const originalAbove = data.cells[j - 1][i]
+  const originalBelow = data.cells[j + 1][i]
+  const originalLeft = data.cells[j][i - 1]
+  const originalRight = data.cells[j][i + 1]
+
+  const copyAbove = new Cell(j - 1, i)
+  const copyBelow = new Cell(j + 1, i)
+  const copyLeft = new Cell(j, i - 1)
+  const copyRight = new Cell(j, i + 1)
+
+  // copy all properties from each cell object
+
+  // copy cell above
+  copyAbove.xPos = originalAbove.xPos
+  copyAbove.yPos = originalAbove.yPos
+  copyAbove.parent = originalAbove.parent
+  copyAbove.g = originalAbove.g
+  copyAbove.h = originalAbove.h
+  copyAbove.f = originalAbove.f
+  copyAbove.isWall = originalAbove.isWall
+
+  // copy cell below
+  copyBelow.xPos = originalBelow.xPos
+  copyBelow.yPos = originalBelow.yPos
+  copyBelow.parent = originalBelow.parent
+  copyBelow.g = originalBelow.g
+  copyBelow.h = originalBelow.h
+  copyBelow.f = originalBelow.f
+  copyBelow.isWall = originalBelow.isWall
+
+  // copy cell left
+  copyLeft.xPos = originalLeft.xPos
+  copyLeft.yPos = originalLeft.yPos
+  copyLeft.parent = originalLeft.parent
+  copyLeft.g = originalLeft.g
+  copyLeft.h = originalLeft.h
+  copyLeft.f = originalLeft.f
+  copyLeft.isWall = originalLeft.isWall
+
+  // copy cell right
+  copyRight.xPos = originalRight.xPos
+  copyRight.yPos = originalRight.yPos
+  copyRight.parent = originalRight.parent
+  copyRight.g = originalRight.g
+  copyRight.h = originalRight.h
+  copyRight.f = originalRight.f
+  copyRight.isWall = originalRight.isWall
+
+
+  //TODO bare in mind, these properties, like g, h, f, should be properly defined. They are actually defined later
+
+  // push each cell copy into neighbours
+  neighbours.push(copyAbove) // above
+  neighbours.push(copyBelow) // below
+  neighbours.push(copyLeft) // left
+  neighbours.push(copyRight) // right
 
   return neighbours
 }
