@@ -100,7 +100,6 @@ class Data {
         // define function that checks if two (string) positions match
         const positionMatch = (element) => JSON.stringify(element) === cellPosition
 
-        // TODO
         // if the cell has xPos and yPos in the position of a wall, set the cell.isWall property to true
         // cell.isWall = true
         // 
@@ -128,7 +127,7 @@ class Data {
         }
 
         if (this.smallFood.some(positionMatch)) {
-          domCell.classList.add('small-food') //TODO change this
+          domCell.classList.add('small-food') //TODO change this - edit: why??
           domCell.style.backgroundImage = 'url(https://i.imgur.com/flcwtAM.png)'
         }
 
@@ -319,7 +318,6 @@ class Ghost {
 
     this.moveTimerId = setInterval(() => {
       // switch statement based on mode determines various positions
-      //TODO working from here
 
       // declare positions of the start and end cells
       let startX = null
@@ -329,15 +327,17 @@ class Ghost {
 
       switch (this.mode) {
         case 'chase':
-          let endX = pacman.xPos
-          let endY = pacman.yPos
+          endX = pacman.xPos
+          endY = pacman.yPos
           break
         case 'back to base':
-          let endX = data.ghost2StartX
-          let endY = data.ghostStartY
+          endX = data.ghost2StartX
+          endY = data.ghostStartY
           break
         case 'frightened':
-          // define logic for 'frightened' later (this clause defines endX and endY)
+          // define logic for 'frightened' later (this clause defines endX and endY) //TODO - temporarily making frightened = chase (change later)
+          endX = pacman.xPos
+          endY = pacman.yPos
           break
         default:
           break
@@ -369,11 +369,11 @@ class Ghost {
           // remove open[0] using splice
           this.open.splice(0, 1)
 
-          if (current.xPos === end.xPos && current.yPos === end.xPos) { //TODO this executes when the path is found.
+          if (current.xPos === end.xPos && current.yPos === end.xPos) { //this executes when the path is found.
             //constructPath() //TODO see how constructPath is called here. What does it have access to?
             // here is the path construction code:
 
-            // this should be in the proper scope now. Access to neighbours etc// TODO working here
+            // this should be in the proper scope now. Access to neighbours etc
 
             // path construction performed locally
 
@@ -385,15 +385,14 @@ class Ghost {
               pathnode = pathnode.parent
             }
 
-            // change this.xPos, this.yPos //TODO - see below
+            // change this.xPos, this.yPos
             // analyse this.path (which is now populated), and 
             this.xPos = path[path.length - 1].xPos //TODO - there is a chance this might be - 1, not -2, prepare to change it if needed
-            this.yPos = path[path.length - 1].yPos // TODO see draw path() to get a better insight into this function
+            this.yPos = path[path.length - 1].yPos
 
 
 
             // update DOM
-            // TODO working here
             data.domGhost1.style.left = `${data.cellWidth * this.yPos}px`
             data.domGhost1.style.top = `${data.cellHeight * this.yPos}px`
 
@@ -463,8 +462,7 @@ class Ghost {
       // define constructPath()
       function constructPath() {
         // this function needs access to: path (array), end (object), the parent of each cell
-        // TODO thus it must be allowed within the scope for which neighbours were defined
-        // TODO work from here
+        // thus it must be allowed within the scope for which neighbours were defined
         // end is in the interval scope, which we are inside now. this.path is within the ghost object scope, which we are inside. 
 
         // basic structure:
@@ -493,7 +491,6 @@ class Ghost {
 
       // update ghost on DOM (determine which ghost this is, then update that element)
 
-      // TODO reset variable outside, here
       // reset variables like open, closed, path, (finished???, neighbours???)
       this.open = []
       this.closed = []
@@ -528,7 +525,6 @@ class Ghost {
   }
 
   goToBase() {
-    // TODO work here!!
     // this function is called when a collision happens when this.mode === 'frightened'
     // clear this.frightenedTimerId. This stops the mode from becoming 'chase' again
 
@@ -704,7 +700,6 @@ function runGame() {
         data.score += data.smallScore
         document.querySelector('.score').innerHTML = `Score: ${data.score}`
 
-        // TODO stop this audio playing if it's already playing (prevent bounce)
         data.playChompAudio()
       }
     })
@@ -744,7 +739,6 @@ function runGame() {
 }
 
 function handleFatalCollision() {
-  // TODO include bounce prevention in handleFatalCollision - see Ghost.beFrightened()
   // maybe it's not needed? since this can only run at the end?
   if (data.fatalActivated) return
   data.fatalActivated = true
@@ -869,7 +863,6 @@ function getNeighbours(node) {
   const i = node.xPos
   const j = node.yPos
 
-  //TODO reconstruct this in the following way:
   // define originalAbove = data.cells[j - 1][i]
   // define originalBelow = data.cells[j + 1][i]
   // define originalLeft = data.cells[j][i - 1]
