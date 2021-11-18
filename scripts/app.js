@@ -306,37 +306,51 @@ class Ghost {
     this.frightenedTimerId = null
     this.mode = 'chase'
     this.positionCounter = -1
+
+    // A star - pathfinding variables
+    this.open = []
+    this.closed = []
+    this.finished = false // here or somewhere else
+    this.path = []
+    this.neighbours = []
   }
 
-  // functions: startMoving(), startCycling()
-  startCycling() {
-    // this.cycleTimerId = setInterval(() => {
-    // each interval, change this.mode (use a switch statement to change from one mode to another)
-    // }, constant goes here 5000?)
-  }
-
-  startMoving(track) {
-    // stretch goal: change to more complicated ghost behaviour - A star pathfinding algo
+  startMoving(track) { // track is now unecessary
 
     this.moveTimerId = setInterval(() => {
-      // Declare a 2d array called ghost 1 track. It’s elements are arrays. Within each of those array are two numbers, an x and a y position. Set the ghosts position. Each interval, increment an indexCounter and set the ghost’s x and y to the 0 and 1 of that array. Update the ghost DOM element as well.
+      // switch statement based on mode determines various positions
 
-      // TODO edit this interval so that movement depends on this.mode
-      // switch (this.mode)
+      // declare new cells - start and end
+      // run algorithm()
+      // run constructPath()
+      // change this.xPos and this.yPos based on an element of path
+      // update ghost on DOM
+      // reset variables like open, closed, path, (finished???, neighbours???)
 
-      this.positionCounter += 1
 
-      if (this.positionCounter > (track.length - 1)) {
-        this.positionCounter = 0
-      }
 
-      // update the ghost object's position
-      this.xPos = track[this.positionCounter][0]
-      this.yPos = track[this.positionCounter][1]
 
-      // update the ghost dom element's position
-      data.domGhost1.style.left = `${data.cellWidth * this.xPos}px`
-      data.domGhost1.style.top = `${data.cellHeight * this.yPos}px`
+      // ! old code - pre pathfinding
+      // // Declare a 2d array called ghost 1 track. It’s elements are arrays. Within each of those array are two numbers, an x and a y position. Set the ghosts position. Each interval, increment an indexCounter and set the ghost’s x and y to the 0 and 1 of that array. Update the ghost DOM element as well.
+
+      // // TODO edit this interval so that movement depends on this.mode
+      // // switch (this.mode)
+
+      // this.positionCounter += 1
+
+      // if (this.positionCounter > (track.length - 1)) {
+      //   this.positionCounter = 0
+      // }
+
+      // // update the ghost object's position
+      // this.xPos = track[this.positionCounter][0]
+      // this.yPos = track[this.positionCounter][1]
+
+      // // update the ghost dom element's position
+      // data.domGhost1.style.left = `${data.cellWidth * this.xPos}px`
+      // data.domGhost1.style.top = `${data.cellHeight * this.yPos}px`
+
+
     }, data.ghostMovementInterval)
   }
 
@@ -383,6 +397,12 @@ class Ghost {
     }, 8300)
   }
 
+  // functions: startMoving(), startCycling()
+  startCycling() {
+    // this.cycleTimerId = setInterval(() => {
+    // each interval, change this.mode (use a switch statement to change from one mode to another)
+    // }, constant goes here 5000?)
+  }
 
 }
 
@@ -390,7 +410,12 @@ class Cell {
   constructor(x, y) {
     this.xPos = x
     this.yPos = y
+    this.parent = null
+    this.g = null
+    this.h = null
+    this.f = null
     this.isWall = false // or null?
+    // this.colour = null?
   }
 }
 
@@ -655,3 +680,25 @@ function resetPositions() {
 
 // begin program execution
 // main()
+
+// A star helper functions
+function distanceBetween(nodeA, nodeB) {
+  const xDistance = Math.abs(nodeA.xPos, nodeB.xPos)
+  const yDistance = Math.abs(nodeA.yPos - nodeB.yPos)
+  const distance = xDistance + yDistance
+  return distance
+}
+
+function getNeighbours(node) {
+  const neighbours = []
+  const i = node.xPos
+  const j = node.yPos
+
+  neighbours.push(data.cells[j - 1][i]) // above
+  neighbours.push(data.cells[j + 1][i]) // below
+  neighbours.push(data.cells[j][i - 1]) // left
+  neighbours.push(data.cells[j][i + 1]) // right
+
+  return neighbours
+}
+
