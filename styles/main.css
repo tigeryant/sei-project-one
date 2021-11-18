@@ -12,6 +12,7 @@ body {
 
 header {
   display: flex;
+  justify-content: space-between;
 }
 
 .score {
@@ -19,43 +20,46 @@ header {
   margin-left: 20px;
 }
 
+.press-space {
+  font-size: 15px;
+}
+
 .grid-container {
-  /* height: 310px;
-  width: 280px; */
-  /* background-color: black; */
   position: relative;
 }
 
   .grid-item {
   position: absolute;
-  background-color: white;
+  background-color: black;
   font-size: 10px;
-  border: 1px solid black;
-  /* remove border later */
+  /* border: 1px solid white; */
 }
 
 .wall {
-  background-color: darkgrey;
+  background-color: #1919A6;
 }
 
 .pacman {
-  background-color: blue;
-  border-radius: 15px;
   position: absolute;
-  /* z-index: 33; */
+  background-image: url(https://i.imgur.com/OObC8pE.png);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .ghost1 {
-  /* change the background image to a ghost later */
-  background-color: lime;
   position: absolute;
-  /* background-image: url('https://i.imgur.com/jo1ejO4.jpg'); */
+  background-image: url(https://i.imgur.com/RHpMz2Y.png);
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 
 .small-food {
-  background-color: yellow;
-  
-  border-radius: 15px;
+  /* background-color: gold; */
+  /* border-radius: 15px; */
+  background-size: 35%;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .big-food {

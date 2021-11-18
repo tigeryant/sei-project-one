@@ -36,6 +36,8 @@ class Data {
     // this.delay = 20
     this.activated = false
     this.fatalActivated = false
+    this.chompActivated = false
+    this.pelletActivated = false
 
 
     this.started = false
@@ -126,7 +128,8 @@ class Data {
         }
 
         if (this.smallFood.some(positionMatch)) {
-          domCell.classList.add('small-food')
+          domCell.classList.add('small-food') //TODO change this
+          domCell.style.backgroundImage = 'url(https://i.imgur.com/flcwtAM.png)'
         }
 
         if (this.bigFood.some(positionMatch)) {
@@ -191,13 +194,31 @@ class Data {
   }
 
   startIntroAudio() {
-    this.introAudio.src = 'https://vgmsite.com/soundtracks/pac-man-game-sound-effects/gmiffyvl/Intro.mp3'
+    // this.introAudio.src = 'https://vgmsite.com/soundtracks/pac-man-game-sound-effects/gmiffyvl/Intro.mp3'
+    this.introAudio.src = 'assets/audio/intro.mp3'
+
     this.introAudio.play()
   }
 
   playChompAudio() {
+    if (this.chompActivated || this.pelletActivated) return
+
+    this.chompActivated = true
+
     this.introAudio.src = 'https://vgmsite.com/soundtracks/pac-man-game-sound-effects/knwtmadt/Chomp.mp3'
     this.introAudio.play()
+    setTimeout(() => {
+      this.chompActivated = false
+    }, 800)
+  }
+
+  playPelletAudio() {
+    this.pelletActivated = true
+    this.introAudio.src = 'assets/audio/trimmed_pellet_siren2.m4a'
+    this.introAudio.play()
+    setTimeout(() => {
+      this.pelletActivated = false
+    }, 8000)
   }
 
   initDOM() { // not needed
@@ -326,8 +347,9 @@ class Ghost {
     console.log(`mode: ${this.mode}`)
 
     // change the DOM element to red to reflect it returning to base
-    data.domGhost1.style.backgroundColor = 'red' // change this according to which ghost is being changed
-    data.domGhost1.innerHTML = 'R'
+    data.domGhost1.style.backgroundImage = 'url(https://i.imgur.com/aWiJioF.png)' // change this according to which ghost is being changed
+    data.domGhost1.style.backgroundSize = 'cover'
+    data.domGhost1.style.backgroundPosition = 'center'
   }
 
   beFrightened() {
@@ -345,16 +367,17 @@ class Ghost {
 
     this.mode = 'frightened'
     console.log(`mode: ${this.mode}`)
-    data.domGhost1.style.backgroundColor = 'blue' // change this according to which ghost is being changed
-    data.domGhost1.innerHTML = 'F'
+    data.domGhost1.style.backgroundImage = 'url(https://i.imgur.com/LtmciSP.png)' // change this according to which ghost is being changed
+    data.domGhost1.style.backgroundSize = 'cover'
+    data.domGhost1.style.backgroundPosition = 'center'
 
     this.frightenedTimerId = setTimeout(() => {
       this.mode = 'chase'
-      data.domGhost1.style.backgroundColor = 'lime'
-      data.domGhost1.innerHTML = 'C'
+      data.domGhost1.style.backgroundImage = 'url(https://i.imgur.com/RHpMz2Y.png)'
+      data.domGhost1.style.backgroundSize = 'contain'
       console.log(`mode: ${this.mode}`)
       data.activated = false
-    }, 5000)
+    }, 8300)
   }
 
 
@@ -481,7 +504,7 @@ function runGame() {
         document.querySelector('.score').innerHTML = `Score: ${data.score}`
 
         // TODO stop this audio playing if it's already playing (prevent bounce)
-        // data.playChompAudio()
+        data.playChompAudio()
       }
     })
 
@@ -497,10 +520,12 @@ function runGame() {
         document.querySelector('.score').innerHTML = `Score: ${data.score}`
 
         ghostManager.frightenGhosts()
+
+        data.playPelletAudio()
       }
     })
 
-  }, 75) //lengthen this interval to decrease the browser's workload (maybe run the game more smoothly)
+  }, 55) //lengthen this interval to decrease the browser's workload (maybe run the game more smoothly)
 
   // TODO temporarily removing portals
   // // for the portal monitors we need to handle the pacman dom element as well
@@ -516,9 +541,6 @@ function runGame() {
   //   pacman.yPos = data.portalPosition[0][1]
   // }
 }
-
-// handleFatalCollision()
-
 
 function handleFatalCollision() {
   // TODO include bounce prevention in handleFatalCollision - see Ghost.beFrightened()
@@ -558,15 +580,19 @@ function handleKeyDown(e) {
   switch (e.code) {
     case 'ArrowLeft':
       pacman.guide = 'left'
+      data.domPacman.style.backgroundImage = 'url(https://i.imgur.com/dp2wDpB.png)'
       break
     case 'ArrowUp':
       pacman.guide = 'up'
+      data.domPacman.style.backgroundImage = 'url(https://i.imgur.com/kSggDsb.png?1)'
       break
     case 'ArrowRight':
       pacman.guide = 'right'
+      data.domPacman.style.backgroundImage = 'url(https://i.imgur.com/OObC8pE.png)'
       break
     case 'ArrowDown':
       pacman.guide = 'down'
+      data.domPacman.style.backgroundImage = 'url(https://i.imgur.com/hys9pkO.png?1)'
       break
     case 'Space':
       if (!data.started) {
@@ -583,16 +609,20 @@ function handleKeyDown(e) {
 document.addEventListener('keydown', handleKeyDown)
 
 function beginPlay() {
-  // start intro audio
-  data.startIntroAudio()
+  if (data.livesLeft === 3) {
+    data.startIntroAudio()
 
-  setTimeout(() => {
-    // make a call to a function from the pacman object that starts the movement interval, use timer ids to give it a timer
+    setTimeout(() => {
+      // make a call to a function from the pacman object that starts the movement interval, use timer ids to give it a timer
+      pacman.startMoving()
+
+      // call ghostManager to release ghosts
+      ghostManager.releaseGhosts()
+    }, 4300)
+  } else {
     pacman.startMoving()
-
-    // call ghostManager to release ghosts
     ghostManager.releaseGhosts()
-  }, 4000)
+  }
 
 }
 
@@ -614,7 +644,6 @@ function resetPositions() {
   ghost4.xPos = data.ghost4StartX
   ghost4.yPos = data.ghostStartY
 }
-
 
 // begin program execution
 // main()
