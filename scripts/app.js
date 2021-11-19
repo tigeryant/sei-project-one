@@ -826,10 +826,18 @@ function handleFatalCollision() {
 
   data.playDeathAudio()
 
+  // remove lives from DOM
+  if (data.livesLeft === 2) {
+    document.getElementById('life3').style.visibility = 'hidden'
+  } else if (data.livesLeft === 1) {
+    document.getElementById('life2').style.visibility = 'hidden'
+  }
+
   setTimeout(() => {
     // if 0 lives left, game over
     if (data.livesLeft < 1) {
       data.fatalActivated = false
+      document.getElementById('life1').style.visibility = 'hidden'
       gameOver()
     } else if (data.livesLeft > 0) { // if there are lives left, reset positions and restart game
       data.fatalActivated = false
