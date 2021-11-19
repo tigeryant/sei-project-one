@@ -42,7 +42,7 @@ class Data {
 
     // setting DOM header and footer styles
     this.domHeader = document.querySelector('header')
-    this.domHeader.style.height = `${this.cellHeight * 1.1}px`
+    this.domHeader.style.height = `${this.cellHeight * 1.2}px`
     this.domHeader.style.width = `${this.cellWidth * this.width}px`
 
     this.domFooter = document.querySelector('footer')
