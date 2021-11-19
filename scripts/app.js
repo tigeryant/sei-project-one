@@ -131,6 +131,7 @@ class Data {
           domCell.classList.add('wall')
         }
 
+
         if (this.smallFood.some(positionMatch)) {
           domCell.classList.add('small-food') //TODO change this - edit: why??
           domCell.style.backgroundImage = 'url(https://i.imgur.com/flcwtAM.png)'
@@ -148,10 +149,21 @@ class Data {
         // set an id value here, to be accessed during the monitor loop
         domCell.id = `${cell.xPos}, ${cell.yPos}`
 
+        // // if the cell is a portal, make its background colour black
+        // if (domCell.getAttribute('x') === 0 && domCell.getAttribute('y') === 14) {
+        //   domCell.style.backgroundColor = 'black'
+        // }
+
         this.grid.appendChild(domCell)
       }
       this.cells.push(row)
     }
+
+    // styling of portal cells on DOM
+    const leftPortal = document.getElementById('0, 14')
+    const rightPortal = document.getElementById('27, 14')
+    leftPortal.style.backgroundColor = 'black'
+    rightPortal.style.backgroundColor = 'black'
 
     // const testBackground = document.createElement('div')
     // testBackground.classList.add('game-over-cover')
