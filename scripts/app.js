@@ -538,10 +538,7 @@ class Ghost {
   }
 
   beFrightened() {
-    // this function is called when the ghost needs to behave in a frightened way
-    // be frightened until either: a timeout expires (in which case the normal mode cycle interval is re-engaged) or there is a match between pacman and the ghosts position, in which case their 'back to base' mode is activated, where they wait for a timeout before returning to the normal mode/cycle interval.
-    // start a timeout. When it expires this.mode = 'chase'
-    // start the frightenedTimerId here.kill it if a collision occurs in frightened mode (if it returns to base)
+    // set ghost mode to frightened until a timeout
 
     if (data.activated) return
 
