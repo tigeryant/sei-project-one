@@ -41,6 +41,9 @@ class Data {
     this.chompActivated = false
     this.pelletActivated = false
 
+    this.leftPortalTriggered = false
+    this.rightPortalTriggered = false
+
 
     this.started = false
     this.livesLeft = 3
@@ -80,8 +83,8 @@ class Data {
     ]
 
     this.portals = [
-      [0, 14],
-      [27, 14]
+      [1, 14],
+      [26, 14]
     ]
 
     this.notWalls = this.tunnelPositions.concat(this.ghostHouse).concat(this.portals)
@@ -745,21 +748,47 @@ function runGame() {
       }
     })
 
-  }, 55) //lengthen this interval to decrease the browser's workload (maybe run the game more smoothly)
+    // TODO temporarily removing portals
+    // for the portal monitors we need to handle the pacman dom element as well
+    // check left portal
+    if (data.portals[0][0] === pacman.xPos && data.portals[0][1] === pacman.yPos) {
+      if (data.rightPortalTriggered) return
 
-  // TODO temporarily removing portals
-  // // for the portal monitors we need to handle the pacman dom element as well
-  // // check left portal
-  // if (data.portalPosition[0] === data.pacmansPos) {
-  //   pacman.xPos = data.portalPosition[1][0]
-  //   pacman.yPos = data.portalPosition[1][1]
-  // }
+      data.leftPortalTriggered = true
 
-  // // check right portal
-  // if (data.portalPosition[1] === data.pacmansPos) {
-  //   pacman.xPos = data.portalPosition[0][0]
-  //   pacman.yPos = data.portalPosition[0][1]
-  // }
+      pacman.xPos = data.portals[1][0]
+      pacman.yPos = data.portals[1][1]
+
+      data.domPacman.style.left = `${data.cellWidth * data.portals[1][0]}px`
+      data.domPacman.style.top = `${data.cellHeight * data.portals[1][1]}px`
+
+      setTimeout(() => {
+        data.leftPortalTriggered = false
+      }, 500)
+    }
+    // check right portal
+    if (data.portals[1][0] === pacman.xPos && data.portals[1][1] === pacman.yPos) {
+      if (data.leftPortalTriggered) return
+
+      data.rightPortalTriggered = true
+
+      pacman.xPos = data.portals[0][0]
+      pacman.yPos = data.portals[0][1]
+
+      data.domPacman.style.left = `${data.cellWidth * data.portals[0][0]}px`
+      data.domPacman.style.top = `${data.cellHeight * data.portals[0][1]}px`
+
+      setTimeout(() => {
+        data.rightPortalTriggered = false
+      }, 500)
+    }
+
+
+
+
+  }, 20) //lengthen this interval to decrease the browser's workload (maybe run the game more smoothly)
+
+
 }
 
 function handleFatalCollision() {
