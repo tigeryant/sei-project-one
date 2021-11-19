@@ -2,8 +2,8 @@ class Data {
   constructor() {
     this.height = 31
     this.width = 28
-    this.cellHeight = 21
-    this.cellWidth = 21
+    this.cellHeight = 20
+    this.cellWidth = 20
     this.pacmanStartX = 13
     this.pacmanStartY = 23
     this.ghost1StartX = 11
@@ -42,11 +42,11 @@ class Data {
 
     // setting DOM header and footer styles
     this.domHeader = document.querySelector('header')
-    this.domHeader.style.height = `${this.cellHeight * 2}px`
+    this.domHeader.style.height = `${this.cellHeight * 1.1}px`
     this.domHeader.style.width = `${this.cellWidth * this.width}px`
 
     this.domFooter = document.querySelector('footer')
-    this.domFooter.style.height = `${this.cellHeight * 2}px`
+    this.domFooter.style.height = `${this.cellHeight * 1.8}px`
     this.domFooter.style.width = `${this.cellWidth * this.width}px`
 
     this.domLives = document.querySelectorAll('.life')
