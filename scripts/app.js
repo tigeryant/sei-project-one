@@ -1,5 +1,3 @@
-// import _, { sortBy } from 'underscore'
-
 class Data {
   constructor() {
     this.height = 31
@@ -20,22 +18,11 @@ class Data {
 
     this.pacmanTimer = null
     this.monitorTimer = null
-    // now deprecated:
-    this.ghost1CycleTimer = null
-    this.ghost1MoveTimer = null
-    this.ghost2CycleTimer = null
-    this.ghost2MoveTimer = null
-    this.ghost3CycleTimer = null
-    this.ghost3MoveTimer = null
-    this.ghost4CycleTimer = null
-    this.ghost4MoveTimer = null
 
     // ghost speed in ms - constant
     this.ghostMovementInterval = 200
 
     //prevent bounce
-    // this.lastActivated = 0
-    // this.delay = 20
     this.activated = false
     this.fatalActivated = false
     this.chompActivated = false
@@ -52,8 +39,6 @@ class Data {
     this.ghosts = []
 
     this.introAudio = document.querySelector('#intro-audio')
-
-    this.allGhostsPos = [] // still needed?
 
     // setting DOM header and footer styles
     this.domHeader = document.querySelector('header')
@@ -115,10 +100,7 @@ class Data {
         // define function that checks if two (string) positions match
         const positionMatch = (element) => JSON.stringify(element) === cellPosition
 
-        // if the cell has xPos and yPos in the position of a wall, set the cell.isWall property to true
-        // cell.isWall = true
-        // 
-
+        // set wall cells isWall property to true
         if (!this.notWalls.some(positionMatch)) {
           cell.isWall = true // this could be refactored and put with the conditionals below
         }
@@ -141,7 +123,6 @@ class Data {
           domCell.classList.add('wall')
         }
 
-
         if (this.smallFood.some(positionMatch)) {
           domCell.classList.add('small-food') //TODO change this - edit: why??
           domCell.style.backgroundImage = 'url(https://i.imgur.com/flcwtAM.png)'
@@ -156,13 +137,8 @@ class Data {
         domCell.setAttribute('x', `${cell.xPos}`)
         domCell.setAttribute('y', `${cell.yPos}`)
 
-        // set an id value here, to be accessed during the monitor loop
+        // set domCell id value here, to be accessed during the monitor loop
         domCell.id = `${cell.xPos}, ${cell.yPos}`
-
-        // // if the cell is a portal, make its background colour black
-        // if (domCell.getAttribute('x') === 0 && domCell.getAttribute('y') === 14) {
-        //   domCell.style.backgroundColor = 'black'
-        // }
 
         this.grid.appendChild(domCell)
       }
@@ -174,11 +150,6 @@ class Data {
     const rightPortal = document.getElementById('27, 14')
     leftPortal.style.backgroundColor = 'black'
     rightPortal.style.backgroundColor = 'black'
-
-    // const testBackground = document.createElement('div')
-    // testBackground.classList.add('game-over-cover')
-    // const background = document.querySelector('.background')
-    // background.appendChild(testBackground)
 
     // create a node list of all domCells and convert it to an array
     this.domCellsNodeList = document.querySelectorAll('.grid-item')
@@ -202,20 +173,6 @@ class Data {
     this.domGhost1.style.width = `${this.cellWidth}px`
     this.grid.appendChild(this.domGhost1)
 
-
-    // populates walls (1d array of objects) - (make space for portals)
-    // TODO remove this later
-    // this.cells.forEach(row => {
-    //   row.forEach(cell => {
-    //     this.notWalls.forEach(position => {
-    //       if (cell.xPos !== position[0] && cell.yPos !== position[1]) {
-    //         cell.isWall = true
-    //         this.walls.push(cell)
-    //       }
-    //     })
-    //   })
-    // })
-
     this.ghost1Track = [
       [12, 11], [11, 11], [10, 11], [9, 11], [9, 12], [9, 13], [9, 14], [9, 15], [9, 16], [9, 17], [10, 17], [11, 17], [12, 17], [13, 17], [14, 17], [15, 17], [16, 17], [17, 17], [18, 17], [18, 16], [18, 15], [18, 14], [18, 13], [18, 12], [18, 11], [17, 11], [16, 11], [15, 11], [14, 11], [13, 11]
     ]
@@ -223,7 +180,6 @@ class Data {
   }
 
   startIntroAudio() {
-    // this.introAudio.src = 'https://vgmsite.com/soundtracks/pac-man-game-sound-effects/gmiffyvl/Intro.mp3'
     this.introAudio.src = 'assets/audio/intro.mp3'
 
     this.introAudio.play()
@@ -253,9 +209,6 @@ class Data {
   playDeathAudio() {
     this.introAudio.src = 'assets/audio/pacman_death.wav'
     this.introAudio.play()
-  }
-
-  initDOM() { // not needed
   }
 }
 
@@ -349,10 +302,7 @@ class Ghost {
   startMoving(track) { //TODO to return to prior state, pass the track variable
 
     this.moveTimerId = setInterval(() => {
-      // Declare a 2d array called ghost 1 track. It’s elements are arrays. Within each of those array are two numbers, an x and a y position. Set the ghosts position. Each interval, increment an indexCounter and set the ghost’s x and y to the 0 and 1 of that array. Update the ghost DOM element as well.
-
-      // TODO edit this interval so that movement depends on this.mode
-      // switch (this.mode)
+      // Each interval, increment an indexCounter and set the ghost’s x and y to the 0 and 1 of the track array. Update the ghost DOM element as well.
 
       this.positionCounter += 1
 
@@ -589,11 +539,8 @@ class Ghost {
 
   beFrightened() {
     // this function is called when the ghost needs to behave in a frightened way
-
     // be frightened until either: a timeout expires (in which case the normal mode cycle interval is re-engaged) or there is a match between pacman and the ghosts position, in which case their 'back to base' mode is activated, where they wait for a timeout before returning to the normal mode/cycle interval.
-
     // start a timeout. When it expires this.mode = 'chase'
-
     // start the frightenedTimerId here.kill it if a collision occurs in frightened mode (if it returns to base)
 
     if (data.activated) return
@@ -616,11 +563,11 @@ class Ghost {
   }
 
   // functions: startMoving(), startCycling()
-  startCycling() {
-    // this.cycleTimerId = setInterval(() => {
-    // each interval, change this.mode (use a switch statement to change from one mode to another)
-    // }, constant goes here 5000?)
-  }
+  // startCycling() {
+  // this.cycleTimerId = setInterval(() => {
+  // each interval, change this.mode (use a switch statement to change from one mode to another)
+  // }, constant goes here 5000?)
+  // }
 
 }
 
@@ -632,8 +579,7 @@ class Cell {
     this.g = null
     this.h = null
     this.f = null
-    this.isWall = false // or null?
-    // this.colour = null?
+    this.isWall = false
   }
 }
 
@@ -647,7 +593,7 @@ class GhostManager {
 
     // mode cycling is now a stretch goal. Include this later
     // ghost1.startCycling()
-    ghost1.startMoving(data.ghost1Track) //TODO to return to prior state, pass the track variable
+    ghost1.startMoving(data.ghost1Track)
 
     // TODO temporarily removing
     // setTimeout(() => {
@@ -668,10 +614,6 @@ class GhostManager {
 
   // frighten all ghosts
   frightenGhosts() {
-    // if (data.lastActivated >= (Date.now() - data.delay)) // these 3 lines attempt to prevent bounce (but don't work)
-    //   return
-    // data.lastActivated = Date.now()
-
     data.ghosts.forEach(ghost => { // refactor all functions like this into a single line
       ghost.beFrightened()
     })
@@ -707,8 +649,6 @@ pushGhosts(ghost1, ghost2, ghost3, ghost4)
 
 function main() {
   runGame()
-  // temporarily removing - HFC should only be triggered when a collision takes place
-  // handleFatalCollision()
 }
 
 
@@ -723,14 +663,12 @@ function runGame() {
       if (ghost.xPos === pacman.xPos && ghost.yPos === pacman.yPos) {
         if (ghost.mode !== 'frightened' && ghost.mode !== 'back to base') {
           console.log('fatal collision!')
-          // run handleFatalCollision
           handleFatalCollision()
         } else if (ghost.mode === 'frightened') {
           console.log(`mode ${ghost.mode}`)
           data.score += data.captureScore
           document.querySelector('.score').innerHTML = `Score: ${data.score}` // this line is repeated - refactor by moving it after each function
           console.log('ghost eaten!')
-
           ghost.goToBase()
         }
       }
@@ -770,8 +708,8 @@ function runGame() {
       }
     })
 
-    // TODO temporarily removing portals
-    // for the portal monitors we need to handle the pacman dom element as well
+    // check portals
+
     // check left portal
     if (data.portals[0][0] === pacman.xPos && data.portals[0][1] === pacman.yPos) {
       if (data.rightPortalTriggered) return
@@ -804,13 +742,7 @@ function runGame() {
         data.rightPortalTriggered = false
       }, 500)
     }
-
-
-
-
   }, 20) //lengthen this interval to decrease the browser's workload (maybe run the game more smoothly)
-
-
 }
 
 function handleFatalCollision() {
@@ -901,7 +833,7 @@ function beginPlay() {
 
       // call ghostManager to release ghosts
       ghostManager.releaseGhosts()
-    }, 4300) // TODO shortening this for testing - original value is 4300
+    }, 4300)
   } else {
     pacman.startMoving()
     ghostManager.releaseGhosts()
@@ -911,10 +843,7 @@ function beginPlay() {
 
 function gameOver() {
   console.log('game over')
-  // TODO add a more advanced game over screen
-  // create a div that covers the whole screen, blurs background, resets values etc
-
-  // Poor man's reset
+  // reset game
   alert(`Game over! Your score is ${data.score}.\nPress ok to play again`)
   location.reload()
 }
@@ -932,9 +861,6 @@ function resetPositions() {
   ghost4.xPos = data.ghost4StartX
   ghost4.yPos = data.ghostStartY
 }
-
-// begin program execution
-// main()
 
 // A star (pathfinding) helper functions
 
