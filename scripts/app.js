@@ -1,4 +1,4 @@
-import _, { sortBy } from 'underscore'
+// import _, { sortBy } from 'underscore'
 
 class Data {
   constructor() {
@@ -225,6 +225,11 @@ class Data {
     }, 8000)
   }
 
+  playDeathAudio() {
+    this.introAudio.src = 'assets/audio/pacman_death.wav'
+    this.introAudio.play()
+  }
+
   initDOM() { // not needed
   }
 }
@@ -309,218 +314,229 @@ class Ghost {
     this.positionCounter = -1 //TODO remove this later
 
     // A star - pathfinding variables
-    this.open = []
-    this.closed = []
-    this.finished = false // here or somewhere else
-    this.path = []
-    this.neighbours = []
+    // this.open = []
+    // this.closed = []
+    // this.finished = false // here or somewhere else
+    // this.path = []
+    // this.neighbours = []
   }
 
-  startMoving() { // track is now unecessary
+  startMoving(track) { //TODO to return to prior state, pass the track variable
 
     this.moveTimerId = setInterval(() => {
-      // switch statement based on mode determines various positions
-      // declare positions of the start and end cells
-      let startX = null
-      let startY = null
-      let endX = null
-      let endY = null
+      // Declare a 2d array called ghost 1 track. It’s elements are arrays. Within each of those array are two numbers, an x and a y position. Set the ghosts position. Each interval, increment an indexCounter and set the ghost’s x and y to the 0 and 1 of that array. Update the ghost DOM element as well.
 
-      switch (this.mode) {
-        case 'chase':
-          endX = pacman.xPos
-          endY = pacman.yPos
-          break
-        case 'back to base':
-          endX = data.ghost2StartX
-          endY = data.ghostStartY
-          break
-        case 'frightened':
-          // define logic for 'frightened' later (this clause defines endX and endY) //TODO - temporarily making frightened = chase (change later)
-          endX = pacman.xPos
-          endY = pacman.yPos
-          break
-        default:
-          break
+      // TODO edit this interval so that movement depends on this.mode
+      // switch (this.mode)
+
+      this.positionCounter += 1
+
+      if (this.positionCounter > (track.length - 1)) {
+        this.positionCounter = 0
       }
 
-      startX = this.xPos
-      startY = this.yPos
+      // update the ghost object's position
+      this.xPos = track[this.positionCounter][0]
+      this.yPos = track[this.positionCounter][1]
 
-      // instantiate start and end cells
-      const start = new Cell(startX, startY)
-      const end = new Cell(endX, endY)
-
-      // define algorithm()
-      // function algorithm() { //TODO make sure this is called 
-
-      // setup definitions
-      start.g = 0
-      start.f = 0
-      this.open.push(start) // TODO first bug is here
-
-      while (!this.finished) {
-        // TODO - make sure you install underscore.js as a dependency to use this sort http://underscorejs.org/#sortBy
-        // sort the cells in open by 'f' in ascending order
-        this.open = _.sortBy(open, 'f') //TODO install library properly
-        let current = open[0] // check if this needs to be in the constructor? should be ok here
-
-        this.closed.push(current)
-
-        // remove open[0] using splice
-        this.open.splice(0, 1)
-
-        if (current.xPos === end.xPos && current.yPos === end.xPos) { //this executes when the path is found.
-          //constructPath() //TODO see how constructPath is called here. What does it have access to?
-          // here is the path construction code:
-
-          // this should be in the proper scope now. Access to neighbours etc
-
-          // path construction performed locally
-
-          this.path = [] // not needed?
-          let pathnode = end
-
-          while (pathnode.parent !== null) {
-            this.path.push(pathnode)
-            pathnode = pathnode.parent
-          }
-
-          // change this.xPos, this.yPos
-          // analyse this.path (which is now populated), and 
-          this.xPos = this.path[this.path.length - 1].xPos //TODO - there is a chance this might be - 1, not -2, prepare to change it if needed
-          this.yPos = this.path[this.path.length - 1].yPos
+      // update the ghost dom element's position
+      data.domGhost1.style.left = `${data.cellWidth * this.xPos}px`
+      data.domGhost1.style.top = `${data.cellHeight * this.yPos}px`
 
 
+      // ! The following (commented) code defines a pathfinding algorithm for ghost movement
 
-          // update DOM
-          data.domGhost1.style.left = `${data.cellWidth * this.yPos}px`
-          data.domGhost1.style.top = `${data.cellHeight * this.yPos}px`
+      // // switch statement based on mode determines various positions
+      // // declare positions of the start and end cells
+      // let startX = null
+      // let startY = null
+      // let endX = null
+      // let endY = null
 
-
-          this.finished = true
-          return // does this exit the rest of the while loop, as it should?
-        }
-
-        this.neighbours = getNeighbours(this.current) //TODO make sure getNeighbours() passes copies of objects, not their references
-
-        function isInClosed(neighbour) { // TODO come back to this
-          this.closed.forEach(closedNode => {
-            if (closedNode.xPos === neighbour.xPos && closedNode.yPos === closedNode.yPos) {
-              return true
-            }
-          })
-          return false
-        }
-
-        this.neighbours.forEach(neighbour => {
-          isInClosed(neighbour)
-
-          // isWall value should be copied from the original cell object stored in data.cells
-          if (neighbour.isWall || isInClosed(neighbour)) {
-            return // not the most idiomatic, but it will do
-          }
-
-          function isInOpen(neighbour) {
-            this.open.forEach(openNode => {
-              if (openNode.xPos === neighbour.xPos && openNode.yPos === neighbour.yPos) {
-                return true
-              }
-            })
-            return false
-          }
-
-          isInOpen(neighbour)
-
-          if (!isInOpen(neighbour)) {
-            this.open.push(neighbour)
-            neighbour.parent = current
-          }
-
-          neighbour.g = current.g + 1
-          neighbour.h = distanceBetween(neighbour, end)
-          neighbour.f = neighbour.g + neighbour.h
-
-          if (isInOpen(neighbour)) {
-            if ((current.g + 1) < neighbour.g) {
-              neighbour.g = (current.g + 1)
-              neighbour.parent = current
-              neighbour.f = neighbour.g + neighbour.h
-
-              this.open = _.sortBy(open, 'f')
-            }
-          }
-        })
-
-        if ((current.xPos !== end.xPos || current.yPos !== end.yPos) && this.open.length === 0) { // careful with scope here
-          console.log('Error: pathfinding failed')
-          this.finished = true
-        }
-      }
-      // } //TODO removing this algorithm closing brace
-
-
-      // define constructPath()
-      // function constructPath() {
-      // this function needs access to: path (array), end (object), the parent of each cell
-      // thus it must be allowed within the scope for which neighbours were defined
-      // end is in the interval scope, which we are inside now. this.path is within the ghost object scope, which we are inside. 
-
-      // basic structure:
-
-      /*
-      this.path = []
-      pathnode = end
-
-      while (pathnode.parent !== null) {
-        this.path.push(pathnode)
-        pathnode = pathnode.parent
-      }
-      */
-
+      // switch (this.mode) {
+      //   case 'chase':
+      //     endX = pacman.xPos
+      //     endY = pacman.yPos
+      //     break
+      //   case 'back to base':
+      //     endX = data.ghost2StartX
+      //     endY = data.ghostStartY
+      //     break
+      //   case 'frightened':
+      //     // define logic for 'frightened' later (this clause defines endX and endY) //TODO - temporarily making frightened = chase (change later)
+      //     endX = pacman.xPos
+      //     endY = pacman.yPos
+      //     break
+      //   default:
+      //     break
       // }
 
+      // startX = this.xPos
+      // startY = this.yPos
 
-      // run algorithm()
-      // algorithm()//TODO removing this call
-      // run constructPath()
-      // constructPath()
+      // // instantiate start and end cells
+      // const start = new Cell(startX, startY)
+      // const end = new Cell(endX, endY)
 
-      // change this.xPos and this.yPos based on an element of path (I think it's the second to last one)
-      // this.xPos = path[path.length - 2].xPos
-      // this.yPos = path[path.length - 2].yPos
+      // // define algorithm()
+      // // function algorithm() { //TODO make sure this is called - also remember this was wrapped before
 
-      // update ghost on DOM (determine which ghost this is, then update that element)
+      // // setup definitions
+      // start.g = 0
+      // start.f = 0
+      // this.open.push(start) // TODO first bug is here
 
-      // reset variables like open, closed, path, (finished???, neighbours???)
-      this.open = []
-      this.closed = []
-      this.finished = false
-      this.path = []
-      this.neighbours = []
+      // while (!this.finished) {
+      //   // TODO - make sure you install underscore.js as a dependency to use this sort http://underscorejs.org/#sortBy
+      //   // sort the cells in open by 'f' in ascending order
+      //   //this.open = _.sortBy(open, 'f') //TODO install library properly
+
+      //   // TODO write this yourself
+
+      //   this.open.sort((a, b) => {
+      //     return a.f - b.f
+      //   })
+
+      //   //TODO this open[] is empty when it shouldn't be - bug is here
+      //   let current = open[0] // check if this needs to be in the constructor? should be ok here
+
+      //   // console.log(open[0])
+
+      //   this.closed.push(current)
+
+      //   // remove open[0] using splice
+      //   this.open.splice(0, 1)
+
+      //   if (current.xPos === end.xPos && current.yPos === end.yPos) { //this executes when the path is found.
+      //     //constructPath() //TODO see how constructPath is called here. What does it have access to?
+      //     // here is the path construction code:
+
+      //     // this should be in the proper scope now. Access to neighbours etc
+
+      //     // path construction performed locally
+
+      //     this.path = [] // not needed?
+      //     let pathnode = end
+
+      //     while (pathnode.parent !== null) {
+      //       this.path.push(pathnode)
+      //       pathnode = pathnode.parent
+      //     }
+
+      //     // change this.xPos, this.yPos
+      //     // analyse this.path (which is now populated), and 
+      //     this.xPos = this.path[this.path.length - 1].xPos //TODO - there is a chance this might be - 1, not -2, prepare to change it if needed
+      //     this.yPos = this.path[this.path.length - 1].yPos
 
 
 
-      // ! old code - pre pathfinding
-      // // Declare a 2d array called ghost 1 track. It’s elements are arrays. Within each of those array are two numbers, an x and a y position. Set the ghosts position. Each interval, increment an indexCounter and set the ghost’s x and y to the 0 and 1 of that array. Update the ghost DOM element as well.
+      //     // update DOM
+      //     data.domGhost1.style.left = `${data.cellWidth * this.yPos}px`
+      //     data.domGhost1.style.top = `${data.cellHeight * this.yPos}px`
 
-      // // TODO edit this interval so that movement depends on this.mode
-      // // switch (this.mode)
 
-      // this.positionCounter += 1
+      //     this.finished = true
+      //     return // does this exit the rest of the while loop, as it should?
+      //   }
 
-      // if (this.positionCounter > (track.length - 1)) {
-      //   this.positionCounter = 0
+      //   this.neighbours = getNeighbours(this.current) //TODO make sure getNeighbours() passes copies of objects, not their references
+
+      //   function isInClosed(neighbour) { // TODO come back to this
+      //     this.closed.forEach(closedNode => {
+      //       if (closedNode.xPos === neighbour.xPos && closedNode.yPos === closedNode.yPos) {
+      //         return true
+      //       }
+      //     })
+      //     return false
+      //   }
+
+      //   this.neighbours.forEach(neighbour => {
+      //     isInClosed(neighbour)
+
+      //     // isWall value should be copied from the original cell object stored in data.cells
+      //     if (neighbour.isWall || isInClosed(neighbour)) {
+      //       return // not the most idiomatic, but it will do
+      //     }
+
+      //     function isInOpen(neighbour) {
+      //       this.open.forEach(openNode => {
+      //         if (openNode.xPos === neighbour.xPos && openNode.yPos === neighbour.yPos) {
+      //           return true
+      //         }
+      //       })
+      //       return false
+      //     }
+
+      //     isInOpen(neighbour)
+
+      //     if (!isInOpen(neighbour)) {
+      //       this.open.push(neighbour)
+      //       neighbour.parent = current
+      //     }
+
+      //     neighbour.g = current.g + 1
+      //     neighbour.h = distanceBetween(neighbour, end)
+      //     neighbour.f = neighbour.g + neighbour.h
+
+      //     if (isInOpen(neighbour)) {
+      //       if ((current.g + 1) < neighbour.g) {
+      //         neighbour.g = (current.g + 1)
+      //         neighbour.parent = current
+      //         neighbour.f = neighbour.g + neighbour.h
+
+      //         this.open.sort((a, b) => {
+      //           return a.f - b.f
+      //         })
+      //       }
+      //     }
+      //   })
+
+      //   if ((current.xPos !== end.xPos || current.yPos !== end.yPos) && this.open.length === 0) { // careful with scope here
+      //     console.log('Error: pathfinding failed')
+      //     this.finished = true
+      //   }
       // }
+      // // } //TODO removing this algorithm closing brace
 
-      // // update the ghost object's position
-      // this.xPos = track[this.positionCounter][0]
-      // this.yPos = track[this.positionCounter][1]
 
-      // // update the ghost dom element's position
-      // data.domGhost1.style.left = `${data.cellWidth * this.xPos}px`
-      // data.domGhost1.style.top = `${data.cellHeight * this.yPos}px`
+      // // define constructPath()
+      // // function constructPath() {
+      // // this function needs access to: path (array), end (object), the parent of each cell
+      // // thus it must be allowed within the scope for which neighbours were defined
+      // // end is in the interval scope, which we are inside now. this.path is within the ghost object scope, which we are inside. 
 
+      // // basic structure:
+
+      // /*
+      // this.path = []
+      // pathnode = end
+
+      // while (pathnode.parent !== null) {
+      //   this.path.push(pathnode)
+      //   pathnode = pathnode.parent
+      // }
+      // */
+
+      // // }
+
+
+      // // run algorithm()
+      // // algorithm()//TODO removing this call
+      // // run constructPath()
+      // // constructPath()
+
+      // // change this.xPos and this.yPos based on an element of path (I think it's the second to last one)
+      // // this.xPos = path[path.length - 2].xPos
+      // // this.yPos = path[path.length - 2].yPos
+
+      // // update ghost on DOM (determine which ghost this is, then update that element)
+
+      // // reset variables like open, closed, path, (finished???, neighbours???)
+      // this.open = []
+      // this.closed = []
+      // this.finished = false
+      // this.path = []
+      // this.neighbours = []
 
     }, data.ghostMovementInterval)
   }
@@ -537,6 +553,13 @@ class Ghost {
     data.domGhost1.style.backgroundImage = 'url(https://i.imgur.com/aWiJioF.png)' // change this according to which ghost is being changed
     data.domGhost1.style.backgroundSize = 'cover'
     data.domGhost1.style.backgroundPosition = 'center'
+
+    setTimeout(() => {
+      this.mode = 'chase'
+      data.domGhost1.style.backgroundImage = 'url(https://i.imgur.com/RHpMz2Y.png)'
+      data.domGhost1.style.backgroundSize = 'cover'
+      // background - repeat: no - repeat;
+    }, 7000)
   }
 
   beFrightened() {
@@ -599,7 +622,7 @@ class GhostManager {
 
     // mode cycling is now a stretch goal. Include this later
     // ghost1.startCycling()
-    ghost1.startMoving()
+    ghost1.startMoving(data.ghost1Track) //TODO to return to prior state, pass the track variable
 
     // TODO temporarily removing
     // setTimeout(() => {
@@ -750,17 +773,22 @@ function handleFatalCollision() {
   clearInterval(data.pacmanTimer)
   ghostManager.clearGhostTimers()
 
-  // if 0 lives left, game over
-  if (data.livesLeft < 1) {
-    data.fatalActivated = false
-    gameOver()
-  } else if (data.livesLeft > 0) { // if there are lives left, reset positions and restart game
-    data.fatalActivated = false
-    pacman.guide = null
-    ghostManager.resetPositionCounters()
-    resetPositions()
-    runGame()
-  }
+  data.playDeathAudio()
+
+  setTimeout(() => {
+    // if 0 lives left, game over
+    if (data.livesLeft < 1) {
+      data.fatalActivated = false
+      gameOver()
+    } else if (data.livesLeft > 0) { // if there are lives left, reset positions and restart game
+      data.fatalActivated = false
+      pacman.guide = null
+      ghostManager.resetPositionCounters()
+      resetPositions()
+      runGame()
+    }
+  }, 1900)
+
 }
 
 // helper functions
@@ -814,7 +842,7 @@ function beginPlay() {
 
       // call ghostManager to release ghosts
       ghostManager.releaseGhosts()
-    }, 1) // TODO shortening this for testing - original value is 4300
+    }, 4300) // TODO shortening this for testing - original value is 4300
   } else {
     pacman.startMoving()
     ghostManager.releaseGhosts()
@@ -849,7 +877,7 @@ function resetPositions() {
 // begin program execution
 // main()
 
-// A star helper functions
+// A star (pathfinding) helper functions
 
 // heuristic: Manhattan distance (NOT Euclidian)
 function distanceBetween(nodeA, nodeB) {
