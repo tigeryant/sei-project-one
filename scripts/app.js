@@ -55,10 +55,20 @@ class Data {
 
     this.allGhostsPos = [] // still needed?
 
-    // setting DOM header styles
+    // setting DOM header and footer styles
     this.domHeader = document.querySelector('header')
     this.domHeader.style.height = `${this.cellHeight * 2}px`
     this.domHeader.style.width = `${this.cellWidth * this.width}px`
+
+    this.domFooter = document.querySelector('footer')
+    this.domFooter.style.height = `${this.cellHeight * 2}px`
+    this.domFooter.style.width = `${this.cellWidth * this.width}px`
+
+    this.domLives = document.querySelectorAll('.life')
+    this.domLives.forEach(life => {
+      life.style.height = `${this.cellHeight * 1.5}px`
+      life.style.width = `${this.cellWidth * 1.5}px`
+    })
 
     // declaring cells - 2d array of 'cell' ojects in 'row' arrays
     this.cells = []
