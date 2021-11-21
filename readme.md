@@ -6,9 +6,13 @@ Write about the task, the list of games, the use of HTML, CSS and JS.
 
 Go through commits and comment on them
 
+Include a screenshot of the game in action
+
 ## Overview
 ## Architecture
 mention MVC here (and the observer/strategy pattern?). Talk about the different classes, 
+
+Include screenshot showing architecture
 ## Control flow
 
 ## Challenges
