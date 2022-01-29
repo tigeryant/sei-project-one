@@ -17,8 +17,7 @@ Include screenshot showing architecture
 
 ## Challenges
 ### Pathfinding
-Here is a link to my repository which implements pathfinding
-I tried to modify the ghost behaviour by using the A star pathfinding algorithm I had previously implemented in Python here (link to repo)
+Here is a link to my repository which implements pathfinding. I tried to modify the ghost behaviour by using the A star pathfinding algorithm I had previously implemented in Python here (link to repo)
 
 ## Conclusion
 Very useful project for becoming more familiar with JS, as well as working to a deadline
