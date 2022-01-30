@@ -1,5 +1,4 @@
-# SEI Project One - Pacman
-## Preamble
+## Introduction
 I completed this solo project as part of the General Assembly Software Engineering Immersive course. The course was split into four modules, and this was my submission for module one. During module one, we learnt the basics of HTML and CSS, as well as JavaScript and some fundamental programming concepts (data types, scope, objects, classes etc). Due to my prior experience these programming concepts were not new to me, however this was my first exposure to JavaScript. The finished project can be found [here](https://tigeryant.github.io/sei-project-one/).
 
 ## Aim
